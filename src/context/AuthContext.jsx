@@ -4,6 +4,12 @@ import {
   isSignInWithEmailLink,
   signInWithEmailLink,
   sendSignInLinkToEmail,
+  signInWithEmailAndPassword,
+  signInWithPopup,
+  GoogleAuthProvider,
+  EmailAuthProvider,
+  linkWithCredential,
+  fetchSignInMethodsForEmail,
   signOut as firebaseSignOut,
 } from 'firebase/auth'
 import { auth } from '../firebase'
@@ -64,11 +70,41 @@ export function AuthProvider({ children }) {
     window.localStorage.setItem(EMAIL_STORAGE_KEY, email)
   }
 
+  async function signInWithGoogle() {
+    await signInWithPopup(auth, new GoogleAuthProvider())
+  }
+
+  async function getSignInMethods(email) {
+    return fetchSignInMethodsForEmail(auth, email)
+  }
+
+  async function signInWithPassword(email, password) {
+    await signInWithEmailAndPassword(auth, email, password)
+  }
+
+  // Adds a password credential to the currently signed-in account, so future
+  // sign-ins can skip the email-link round trip.
+  async function setAccountPassword(password) {
+    if (!auth.currentUser) throw new Error('You need to be signed in first.')
+    const credential = EmailAuthProvider.credential(auth.currentUser.email, password)
+    await linkWithCredential(auth.currentUser, credential)
+  }
+
   async function signOut() {
     await firebaseSignOut(auth)
   }
 
-  const value = { user, loading, linkError, sendLoginLink, signOut }
+  const value = {
+    user,
+    loading,
+    linkError,
+    sendLoginLink,
+    signInWithGoogle,
+    getSignInMethods,
+    signInWithPassword,
+    setAccountPassword,
+    signOut,
+  }
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }

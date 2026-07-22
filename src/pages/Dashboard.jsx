@@ -5,6 +5,7 @@ import { createTrip, updateTripMeta, deleteTrip, duplicateTrip, saveCategories }
 import { TripCard } from '../components/TripCard'
 import { TripFormModal } from '../components/TripFormModal'
 import { ConfirmDialog } from '../components/ConfirmDialog'
+import { SetPasswordModal } from '../components/SetPasswordModal'
 import { sampleTrip } from '../data/sampleTrip'
 
 export function Dashboard() {
@@ -16,6 +17,9 @@ export function Dashboard() {
   const [duplicatingTrip, setDuplicatingTrip] = useState(null)
   const [deletingTrip, setDeletingTrip] = useState(null)
   const [seeding, setSeeding] = useState(false)
+  const [showSetPassword, setShowSetPassword] = useState(false)
+
+  const hasPassword = user.providerData.some((p) => p.providerId === 'password')
 
   async function handleCreate(values) {
     await createTrip(user.uid, values)
@@ -60,9 +64,16 @@ export function Dashboard() {
           <h1>Basecamp</h1>
           <p className="dashboard-subtitle">{user.email || 'Signed in'}</p>
         </div>
-        <button className="btn btn-ghost" onClick={signOut}>
-          Sign out
-        </button>
+        <div className="dashboard-header-actions">
+          {!hasPassword && (
+            <button className="btn btn-ghost" onClick={() => setShowSetPassword(true)}>
+              Set a password
+            </button>
+          )}
+          <button className="btn btn-ghost" onClick={signOut}>
+            Sign out
+          </button>
+        </div>
       </header>
 
       <div className="dashboard-toolbar">
@@ -133,6 +144,8 @@ export function Dashboard() {
           onCancel={() => setDeletingTrip(null)}
         />
       )}
+
+      {showSetPassword && <SetPasswordModal onClose={() => setShowSetPassword(false)} />}
     </div>
   )
 }
