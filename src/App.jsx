@@ -3,6 +3,7 @@ import { AuthProvider, useAuth } from './context/AuthContext'
 import { Login } from './pages/Login'
 import { Dashboard } from './pages/Dashboard'
 import { TripPage } from './pages/TripPage'
+import { SharedTripPage } from './pages/SharedTripPage'
 import { SetupNeeded } from './pages/SetupNeeded'
 import { isFirebaseConfigured } from './firebase'
 
@@ -16,6 +17,7 @@ function Gate() {
     <Routes>
       <Route path="/" element={<Dashboard />} />
       <Route path="/trip/:tripId" element={<TripPage />} />
+      <Route path="/shared/:tripId" element={<SharedTripPage />} />
     </Routes>
   )
 }

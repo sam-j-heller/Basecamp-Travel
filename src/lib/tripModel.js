@@ -6,8 +6,8 @@ export function newId() {
   return crypto.randomUUID()
 }
 
-export function makeList(name, categories = []) {
-  return { id: newId(), name, categories }
+export function makeList(name, categories = [], synced = false) {
+  return { id: newId(), name, categories, synced }
 }
 
 // Trips created before multi-list support only have a flat `categories` array.
@@ -90,6 +90,28 @@ export function moveItem(categories, categoryId, itemId, direction) {
   })
 }
 
+// Flat item-list CRUD, for the "My additions" personal items (no category grouping).
+export function addFlatItem(items, item) {
+  return [...items, item]
+}
+
+export function updateFlatItem(items, itemId, patch) {
+  return items.map((i) => (i.id === itemId ? { ...i, ...patch } : i))
+}
+
+export function deleteFlatItem(items, itemId) {
+  return items.filter((i) => i.id !== itemId)
+}
+
+export function moveFlatItem(items, itemId, direction) {
+  const index = items.findIndex((i) => i.id === itemId)
+  const target = index + direction
+  if (index === -1 || target < 0 || target >= items.length) return items
+  const next = [...items]
+  ;[next[index], next[target]] = [next[target], next[index]]
+  return next
+}
+
 export function categoryProgress(category) {
   const total = category.items.length
   const packed = category.items.filter((i) => i.packed).length
@@ -139,4 +161,22 @@ export function cloneListsAsTemplate(lists) {
     name: l.name,
     categories: cloneCategoriesAsTemplate(l.categories),
   }))
+}
+
+// For migrating a private trip's lists into a shared trip: keeps the same
+// category/item ids (so packedItemIds collected below still point at the
+// right items) but drops the embedded `packed` field, since shared trips
+// track packed status per-viewer instead.
+export function stripPackedForSharing(categories) {
+  return categories.map((c) => ({
+    id: c.id,
+    name: c.name,
+    items: c.items.map(({ id, name, quantity, notes }) => ({ id, name, quantity, notes })),
+  }))
+}
+
+// Collects the ids of every item currently marked packed, for seeding a
+// shared trip's initial packedStatus doc from a private trip's state.
+export function collectPackedIds(categories) {
+  return categories.flatMap((c) => c.items.filter((i) => i.packed).map((i) => i.id))
 }

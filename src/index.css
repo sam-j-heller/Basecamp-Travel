@@ -551,6 +551,16 @@ input:focus {
   font-size: 0.9rem;
 }
 
+.quantity-static {
+  color: var(--ink-soft);
+  font-size: 0.85rem;
+  flex-shrink: 0;
+}
+.item-notes-readonly {
+  margin: 0.3rem 0 0 1.75rem;
+  color: var(--ink-soft);
+  font-size: 0.85rem;
+}
 .quantity-stepper {
   display: flex;
   align-items: center;

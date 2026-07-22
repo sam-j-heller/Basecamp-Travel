@@ -33,7 +33,7 @@ Each trip is a single Firestore document (categories/items are nested arrays ins
 5. In the left sidebar, go to **Build → Firestore Database → Create database**.
    - Choose **production mode** (the app ships its own security rules — see below).
    - Pick any region close to you.
-6. **Deploy the security rules** in [`firestore.rules`](./firestore.rules), which restrict each signed-in user to only their own `users/{their-uid}/trips/**` documents. Paste the contents of `firestore.rules` into **Firestore Database → Rules** in the console and click **Publish**.
+6. **Deploy the security rules** in [`firestore.rules`](./firestore.rules), which restrict each signed-in user to only their own `users/{their-uid}/trips/**` documents (plus the `sharedTrips/**` rules used by the shared-trip feature). Paste the contents of `firestore.rules` into **Firestore Database → Rules** in the console and click **Publish**. **Whenever `firestore.rules` changes in this repo, re-paste and re-publish it in the console** — the file isn't automatically synced to your live Firestore rules.
 7. Copy `.env.example` to `.env.local` and fill in the values from your `firebaseConfig`:
 
    ```
@@ -89,6 +89,7 @@ Vercel also works if you'd rather not use GitHub Actions — **New Project → I
 - **Real-time sync** — every change writes straight to Firestore; no save button, and other devices signed into the same account update live.
 - **Multiple lists per trip** — each trip has a "Recommended" list plus a "Follow along with Sam" list (add more via "+ New list"); tabs switch between them, and the progress bar reflects whichever is active.
 - **Import list** — paste simple indented text (category per line, items indented below, `x3` for quantity, ` - note` for notes) to bulk-add categories/items to the current list without typing them in one at a time.
+- **Shared trips** — click "Make this a shared trip" on any private trip to create a shareable version at a `/shared/:tripId` link. Anyone signed in who has the link can open it: only the trip's owner can edit list/category/item structure, but everyone tracks their own packed status independently, and can add personal items under "My additions" that persist even when the owner edits the shared structure. A list literally named "Follow along with Sam" is special-cased to mirror the owner's own packed status for every viewer (read-only for everyone but the owner) instead of tracking independent progress.
 
 ## Project structure
 

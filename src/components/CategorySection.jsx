@@ -7,6 +7,7 @@ export function CategorySection({
   category,
   isFirst,
   isLast,
+  readOnly = false,
   onRenameCategory,
   onDeleteCategory,
   onMoveCategoryUp,
@@ -43,7 +44,7 @@ export function CategorySection({
   return (
     <section className="category-section">
       <header className="category-header">
-        {editingTitle ? (
+        {!readOnly && editingTitle ? (
           <input
             className="category-title-input"
             autoFocus
@@ -59,20 +60,22 @@ export function CategorySection({
             }}
           />
         ) : (
-          <h2 onClick={() => setEditingTitle(true)}>{category.name}</h2>
+          <h2 onClick={readOnly ? undefined : () => setEditingTitle(true)}>{category.name}</h2>
         )}
 
-        <div className="category-header-actions">
-          <button className="icon-btn" title="Move up" disabled={isFirst} onClick={onMoveCategoryUp}>
-            ↑
-          </button>
-          <button className="icon-btn" title="Move down" disabled={isLast} onClick={onMoveCategoryDown}>
-            ↓
-          </button>
-          <button className="icon-btn icon-btn-danger" title="Delete category" onClick={onDeleteCategory}>
-            🗑
-          </button>
-        </div>
+        {!readOnly && (
+          <div className="category-header-actions">
+            <button className="icon-btn" title="Move up" disabled={isFirst} onClick={onMoveCategoryUp}>
+              ↑
+            </button>
+            <button className="icon-btn" title="Move down" disabled={isLast} onClick={onMoveCategoryDown}>
+              ↓
+            </button>
+            <button className="icon-btn icon-btn-danger" title="Delete category" onClick={onDeleteCategory}>
+              🗑
+            </button>
+          </div>
+        )}
       </header>
 
       <ProgressBar packed={packed} total={total} size="sm" />
@@ -82,7 +85,8 @@ export function CategorySection({
           <ItemRow
             key={item.id}
             item={item}
-            onToggle={(checked) => onToggleItem(item.id, checked)}
+            readOnly={readOnly}
+            onToggle={onToggleItem ? (checked) => onToggleItem(item.id, checked) : undefined}
             onQuantityChange={(q) => onItemQuantityChange(item.id, q)}
             onNotesChange={(notes) => onItemNotesChange(item.id, notes)}
             onRename={(name) => onRenameItem(item.id, name)}
@@ -93,16 +97,18 @@ export function CategorySection({
         ))}
       </ul>
 
-      <form className="add-item-form" onSubmit={handleAddItem}>
-        <input
-          placeholder="Add item…"
-          value={newItemName}
-          onChange={(e) => setNewItemName(e.target.value)}
-        />
-        <button type="submit" className="btn btn-secondary">
-          Add
-        </button>
-      </form>
+      {!readOnly && (
+        <form className="add-item-form" onSubmit={handleAddItem}>
+          <input
+            placeholder="Add item…"
+            value={newItemName}
+            onChange={(e) => setNewItemName(e.target.value)}
+          />
+          <button type="submit" className="btn btn-secondary">
+            Add
+          </button>
+        </form>
+      )}
     </section>
   )
 }

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { Link, useParams, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { useTrip } from '../hooks/useTrip'
 import { CategorySection } from '../components/CategorySection'
@@ -8,6 +8,7 @@ import { ConfirmDialog } from '../components/ConfirmDialog'
 import { StickFigureWave } from '../components/StickFigureWave'
 import { ImportListModal } from '../components/ImportListModal'
 import { recommendedCategories, samCategories } from '../data/galapagosRealLists'
+import { createSharedTrip, initPackedStatus } from '../lib/sharedTripsApi'
 import {
   addCategory,
   renameCategory,
@@ -23,11 +24,14 @@ import {
   addList,
   renameList,
   deleteList,
+  stripPackedForSharing,
+  collectPackedIds,
 } from '../lib/tripModel'
 
 export function TripPage() {
   const { tripId } = useParams()
   const { user } = useAuth()
+  const navigate = useNavigate()
   const { trip, loading, mutateLists } = useTrip(user.uid, tripId)
   const [newCategoryName, setNewCategoryName] = useState('')
   const [activeListId, setActiveListId] = useState(null)
@@ -38,6 +42,8 @@ export function TripPage() {
   const [confirmDeleteList, setConfirmDeleteList] = useState(false)
   const [confirmImport, setConfirmImport] = useState(false)
   const [showImportModal, setShowImportModal] = useState(false)
+  const [confirmMakeShared, setConfirmMakeShared] = useState(false)
+  const [creatingShared, setCreatingShared] = useState(false)
 
   if (loading) return <p className="dashboard-empty">Loading trip…</p>
   if (!trip) return <p className="dashboard-empty">Trip not found.</p>
@@ -107,6 +113,32 @@ export function TripPage() {
     setConfirmImport(false)
   }
 
+  async function handleMakeSharedTrip() {
+    setCreatingShared(true)
+    try {
+      const sharedLists = lists.map((l) => ({
+        id: l.id,
+        name: l.name,
+        synced: l.name === 'Follow along with Sam',
+        categories: stripPackedForSharing(l.categories),
+      }))
+      const packedIds = lists.flatMap((l) => collectPackedIds(l.categories))
+      const newTripId = await createSharedTrip(user.uid, {
+        name: trip.name,
+        startDate: trip.startDate,
+        endDate: trip.endDate,
+        themeColor: trip.themeColor,
+        themeMotif: trip.themeMotif,
+        lists: sharedLists,
+      })
+      await initPackedStatus(newTripId, user.uid, packedIds)
+      navigate(`/shared/${newTripId}`)
+    } finally {
+      setCreatingShared(false)
+      setConfirmMakeShared(false)
+    }
+  }
+
   return (
     <div className={`trip-page motif-${trip.themeMotif || 'mountain'}`} style={{ '--trip-color': trip.themeColor }}>
       <header className="trip-page-header">
@@ -117,10 +149,15 @@ export function TripPage() {
         <ProgressBar packed={packed} total={total} size="lg" />
       </header>
 
-      {/* TEMPORARY — see handleImportRealData above */}
-      <button className="btn btn-ghost" style={{ marginBottom: '1rem' }} onClick={() => setConfirmImport(true)}>
-        Import real packing data (temporary)
-      </button>
+      <div className="dashboard-toolbar" style={{ marginBottom: '1rem' }}>
+        {/* TEMPORARY — see handleImportRealData above */}
+        <button className="btn btn-ghost" onClick={() => setConfirmImport(true)}>
+          Import real packing data (temporary)
+        </button>
+        <button className="btn btn-secondary" onClick={() => setConfirmMakeShared(true)}>
+          👪 Make this a shared trip
+        </button>
+      </div>
 
       <div className="list-tabs">
         {lists.map((list) => (
@@ -260,6 +297,16 @@ export function TripPage() {
           listName={activeList.name}
           onImport={handleImportText}
           onCancel={() => setShowImportModal(false)}
+        />
+      )}
+
+      {confirmMakeShared && (
+        <ConfirmDialog
+          title="Make this a shared trip"
+          message="This creates a new shared version of this trip that family members can view and pack against with their own account — your existing lists here are copied over and left untouched. You'll get a link to send them once it's created."
+          confirmLabel={creatingShared ? 'Creating…' : 'Create shared trip'}
+          onConfirm={handleMakeSharedTrip}
+          onCancel={() => setConfirmMakeShared(false)}
         />
       )}
     </div>
