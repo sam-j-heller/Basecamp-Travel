@@ -87,6 +87,8 @@ Vercel also works if you'd rather not use GitHub Actions — **New Project → I
 - **Trip page** — categories are reorderable (↑/↓), each with an add-item form; items have a packed checkbox, quantity stepper, optional notes, and are also reorderable.
 - **Per-trip theme** — pick a motif (mountain / jungle / desert) and accent color when creating or editing a trip; it colors the trip's header band and progress bars.
 - **Real-time sync** — every change writes straight to Firestore; no save button, and other devices signed into the same account update live.
+- **Multiple lists per trip** — each trip has a "Recommended" list plus a "Follow along with Sam" list (add more via "+ New list"); tabs switch between them, and the progress bar reflects whichever is active.
+- **Import list** — paste simple indented text (category per line, items indented below, `x3` for quantity, ` - note` for notes) to bulk-add categories/items to the current list without typing them in one at a time.
 
 ## Project structure
 

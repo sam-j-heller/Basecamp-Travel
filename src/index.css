@@ -671,6 +671,28 @@ input:focus {
   gap: 0.6rem;
   margin-top: 0.5rem;
 }
+.import-textarea {
+  width: 100%;
+  font-family: ui-monospace, Consolas, monospace;
+  font-size: 0.85rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.6rem 0.7rem;
+  background: var(--card-bg);
+  color: var(--ink);
+  resize: vertical;
+}
+.import-preview {
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+  margin-top: 0.6rem;
+}
+.modal p code {
+  background: var(--sand-deep);
+  border-radius: 4px;
+  padding: 0.05rem 0.3rem;
+  font-size: 0.85em;
+}
 
 /* ---------- Responsive ---------- */
 @media (max-width: 640px) {

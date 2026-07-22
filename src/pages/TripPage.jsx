@@ -6,6 +6,7 @@ import { CategorySection } from '../components/CategorySection'
 import { ProgressBar } from '../components/ProgressBar'
 import { ConfirmDialog } from '../components/ConfirmDialog'
 import { StickFigureWave } from '../components/StickFigureWave'
+import { ImportListModal } from '../components/ImportListModal'
 import { recommendedCategories, samCategories } from '../data/galapagosRealLists'
 import {
   addCategory,
@@ -36,6 +37,7 @@ export function TripPage() {
   const [listNameDraft, setListNameDraft] = useState('')
   const [confirmDeleteList, setConfirmDeleteList] = useState(false)
   const [confirmImport, setConfirmImport] = useState(false)
+  const [showImportModal, setShowImportModal] = useState(false)
 
   if (loading) return <p className="dashboard-empty">Loading trip…</p>
   if (!trip) return <p className="dashboard-empty">Trip not found.</p>
@@ -84,6 +86,11 @@ export function TripPage() {
     mutateLists((currentLists) => deleteList(currentLists, activeList.id))
     setActiveListId(null)
     setConfirmDeleteList(false)
+  }
+
+  function handleImportText(importedCategories) {
+    mutateActiveListCategories((cats) => [...cats, ...importedCategories])
+    setShowImportModal(false)
   }
 
   // TEMPORARY: one-time import of the real Galápagos & Peru packing data.
@@ -172,6 +179,9 @@ export function TripPage() {
             🗑 Delete list
           </button>
         )}
+        <button className="icon-btn" title="Import list from text" onClick={() => setShowImportModal(true)}>
+          ⬆ Import list
+        </button>
       </div>
 
       {showSamBanner && (
@@ -242,6 +252,14 @@ export function TripPage() {
           danger
           onConfirm={handleImportRealData}
           onCancel={() => setConfirmImport(false)}
+        />
+      )}
+
+      {showImportModal && (
+        <ImportListModal
+          listName={activeList.name}
+          onImport={handleImportText}
+          onCancel={() => setShowImportModal(false)}
         />
       )}
     </div>
