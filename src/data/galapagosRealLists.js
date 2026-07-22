@@ -22,7 +22,7 @@ export function recommendedCategories() {
       ['Credit + backup debit card', 2],
       ['Driver’s license / photo ID', 1],
     ]),
-    category('Clothing', [
+    category('Everyday Clothing (no laundry planned)', [
       ['Quick-dry t-shirts / tops (no cotton)', 10],
       ['Long-sleeve sun shirt, UPF (boat & equator sun)', 2],
       ['Lightweight hiking pants', 3],
@@ -31,7 +31,7 @@ export function recommendedCategories() {
       ['Hiking socks, moisture-wicking (no cotton)', 12],
       ['Sleepwear', 3],
     ]),
-    category('Layers & Accessories', [
+    category('Layers & Outerwear', [
       ['Fleece or midweight insulating layer', 1],
       ['Packable puffy jacket (Andes cold)', 1],
       ['Rain jacket / waterproof shell', 1],
@@ -46,14 +46,14 @@ export function recommendedCategories() {
       ['Comfortable walking sneakers', 1],
       ['Water shoes / sport sandals (snorkel landings)', 1],
     ]),
-    category('Water & Snorkel Gear', [
+    category('Snorkeling & Water Gear', [
       ['Snorkel mask + snorkel (own fit, optional)', 1],
       ['Rash guard', 1],
       ['Reef-safe sunscreen (mineral)', 1],
       ['Small dry bag for boat excursions', 1],
       ['Waterproof phone pouch', 1],
     ]),
-    category('Health & Meds', [
+    category('Medication', [
       ['Altitude sickness medication (e.g. Diamox)', 1],
       ['Anti-nausea medication', 1],
       ['Imodium / anti-diarrheal', 1],
@@ -69,12 +69,12 @@ export function recommendedCategories() {
       ['Headphones', 1],
       ['E-reader / flight entertainment', 1],
     ]),
-    category('Dinner Outfits', [
+    category('Nice Dinner Attire', [
       ['Outfit for La Mar, Lima', 1],
       ['Outfit for Cusco celebration dinner', 1],
       ['Light layer or wrap (Cusco nights are cold)', 1],
     ]),
-    category('Daypack & Extras', [
+    category('Misc & Gear', [
       ['Daypack for excursions & altitude days', 1],
       ['Insulated reusable water bottle', 1],
       ['Travel pillow', 1],
@@ -97,7 +97,11 @@ export function samCategories() {
         'Runs warm — great for cold Rainbow Mtn/Humantay mornings and doubles as dinner pants',
       ],
       ['Zip-off convertible pants', 1, 'Good for warm 60s-70s°F stretches — Galápagos, Aguas Calientes, Lima'],
-      ['Zip-off hiking pants', 1, 'Elastic waist + 4-way stretch for thigh room; adjustable hem as backup for length'],
+      [
+        'Zip-off hiking pants',
+        1,
+        'Elastic waist + 4-way stretch gives real thigh room; adjustable hem as backup if length runs short',
+      ],
       ['Shorts', 1, 'Galápagos warm days, Aguas Calientes, Lima'],
       ['Going-out shirt', 1, 'Cusco celebration dinner + La Mar in Lima'],
       ['Underwear', 7, 'Quick-dry synthetic'],
@@ -105,7 +109,7 @@ export function samCategories() {
       [
         'Insulated jacket (down or synthetic)',
         1,
-        'Non-negotiable — Humantay + Rainbow Mountain are cold at 14-16k ft even in August',
+        'Non-negotiable — Humantay + Rainbow Mountain are cold at 14–16k ft even in August',
       ],
       [
         'Packable rain shell',
@@ -120,27 +124,31 @@ export function samCategories() {
         1,
         'Proven on a past big hike — bringing these instead of trail runners; runs a bit warmer on hot/humid legs (Galápagos, Aguas Calientes)',
       ],
-      ['Sport sandals', 1, 'Galápagos boat days, Aguas Calientes walkabout, Lima'],
+      ['Sandals', 1, 'Galápagos boat days, Aguas Calientes walkabout, Lima'],
     ]),
     category('Sun & Water', [
       ['High-SPF sunscreen (regular)', 1, 'Bring plenty — Peru high-altitude UV hits hard too'],
       ['Reef-safe sunscreen', 1, 'Required in the Galápagos for snorkel days — non-negotiable at the park'],
       ['Sunglasses (polarized)', 1, 'Preferred for on-water glare'],
-      ['Brimmed sun hat', 1, 'Galápagos boat decks and open-air hiking'],
-      ['Electrolyte packets', 10, 'Critical at altitude — helps with acclimatization at 14-16k ft'],
+      ['Sun hat (brimmed)', 1, 'Galápagos boat decks and open-air hiking'],
+      ['Electrolyte packets', 10, 'Critical at altitude — helps with acclimatization at 14–16k ft'],
       ['Reusable water bottle', 1, 'Fill and treat — stay hydrated at altitude'],
     ]),
     category('Camera', [
       ['Mirrorless camera body', 1, ''],
       ['Standard zoom lens (18-50mm f/2.8)', 1, 'Primary lens — Galápagos wildlife gets close, no reach needed'],
-      ['Telephoto lens (70-300mm)', 1, 'Covers Rainbow Mountain and Machu Picchu reach'],
-      ['Spare camera batteries', 2, 'Cold kills batteries fast at altitude'],
+      [
+        'Telephoto lens (70-300mm)',
+        1,
+        'Replacement telephoto — covers Rainbow Mountain and Machu Picchu reach',
+      ],
+      ['Spare batteries', 2, 'Cold kills batteries fast at altitude'],
       ['Memory cards', 1, ''],
-      ['Camera wrist strap', 1, ''],
+      ['Wrist strap', 1, ''],
       [
         'Camera cube insert',
         1,
-        'Doubles as the waterproof/protective solution for boat spray — fits the body, both lenses, and small accessories',
+        'Doubling as the waterproof/protective solution for boat spray — replaces a separate dry bag, fits the body + both lenses + small accessories',
       ],
     ]),
     category('Health & Meds', [
@@ -160,9 +168,60 @@ export function samCategories() {
       ['Small padlock', 1, 'For hostel/hotel luggage storage on long day-trip days'],
       ['Power bank (20,000 mAh)', 1, 'Long boat days and full days away from outlets'],
       ['Universal adapter', 1, 'Ecuador + Peru both use US plugs — double check if needed'],
-      ['Thick microfiber towel', 1, 'Already upgraded from a past trip'],
+      ['Microfiber towel (thick)', 1, 'Already upgraded from a past trip'],
       ['USD cash', 1, 'Parents handling group cash this trip, so less needed personally'],
-      ['Laundry solution', 1, 'Mesh/compression stuff sack to keep dirty clothes separate over 15 days'],
+      ['Laundry solution', 1, 'Compression stuff sack or a spare packing cube to keep dirty clothes separate over 15 days'],
+    ]),
+    category('Shopping List', [
+      ['UPF sun shirts (2)', 2, 'Bought on sale — covers the quick-dry shirt need and rounds the shirt count past target'],
+      [
+        'Hiking pants (first pick)',
+        1,
+        'Bought, then replaced — wouldn’t arrive in time, swapped for the zip-off hiking pants above',
+      ],
+      ['Convertible hiking pants', 1, 'Decided/ordered — sized by actual waist/inseam to match a known fit'],
+      [
+        'Packable down jacket (hooded)',
+        1,
+        'Bought — replaces a too-tight jacket from a past trip, sized for real layering room',
+      ],
+      [
+        'Camera cube insert',
+        1,
+        'Bought — holds body + both lenses + accessories, doubles as boat-spray protection instead of a separate dry bag',
+      ],
+      ['Rain jacket', 1, 'Decided on the fit per the size chart — still need to place the order'],
+      ['Merino wool hiking socks (3-pack)', 1, 'Nice to have'],
+      ['Packing cubes set', 1, 'Nice to have — compression cubes to keep the main bag organized'],
+      [
+        'Reef-safe sunscreen (2-pack)',
+        1,
+        'Still needed — required gear for Galápagos snorkel days',
+      ],
+      ['Electrolyte packets (variety pack)', 1, 'Still needed — grab 20+ for the Peru altitude days'],
+      ['Buff / neck gaiter', 1, 'Still needed — an all-climate pick over a merino option'],
+      [
+        'Power bank (20,000 mAh, lightweight)',
+        1,
+        'Still needed — roughly 25-35% lighter than a standard 20K bank',
+      ],
+      [
+        'Laundry stuff sack',
+        1,
+        'Nice to have — solid (not mesh) so smell stays contained; pair with a paid laundry service along the way',
+      ],
+      ['Cotton going-out/dinner shirt', 1, 'Nice to have — sizing worked out, not yet purchased'],
+      ['Sun hoodie', 1, 'Nice to have — still deciding between two sizes for fit/warmth'],
+      [
+        'Pill organizer (10-compartment, 7-day)',
+        1,
+        'Nice to have — for daily-routine meds; keep as-needed meds in a separate pouch',
+      ],
+      [
+        'Medication restock',
+        1,
+        'Still needed — anti-diarrheal, pain relievers, antacid, antihistamine, antiseptic ointment, motion sickness — plus electrolytes already on the list',
+      ],
     ]),
   ]
 }
