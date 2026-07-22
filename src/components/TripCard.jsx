@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 import { ProgressBar } from './ProgressBar'
-import { tripProgress } from '../lib/tripModel'
+import { allListsProgress, normalizeLists } from '../lib/tripModel'
 
 function formatDateRange(start, end) {
   if (!start && !end) return null
@@ -12,7 +12,7 @@ function formatDateRange(start, end) {
 }
 
 export function TripCard({ trip, onRename, onDuplicate, onDelete }) {
-  const { packed, total } = tripProgress(trip.categories || [])
+  const { packed, total } = allListsProgress(normalizeLists(trip))
   const dateLabel = formatDateRange(trip.startDate, trip.endDate)
 
   return (

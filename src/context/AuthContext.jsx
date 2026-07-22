@@ -70,8 +70,30 @@ export function AuthProvider({ children }) {
     window.localStorage.setItem(EMAIL_STORAGE_KEY, email)
   }
 
+  // If this email already has a password set (e.g. via "Set a password"), Google sign-in
+  // would otherwise throw auth/account-exists-with-different-credential and create a
+  // second, disconnected account. Detect that and link the Google credential onto the
+  // existing account instead, so both methods always resolve to the same user.
   async function signInWithGoogle() {
-    await signInWithPopup(auth, new GoogleAuthProvider())
+    try {
+      await signInWithPopup(auth, new GoogleAuthProvider())
+    } catch (err) {
+      if (err.code !== 'auth/account-exists-with-different-credential') throw err
+
+      const pendingCredential = GoogleAuthProvider.credentialFromError(err)
+      const email = err.customData?.email
+      const methods = email ? await fetchSignInMethodsForEmail(auth, email) : []
+
+      if (!methods.includes('password')) throw err
+
+      const password = window.prompt(
+        `You already have a password set for ${email}. Enter it to link Google sign-in to that account:`
+      )
+      if (!password) throw err
+
+      const result = await signInWithEmailAndPassword(auth, email, password)
+      await linkWithCredential(result.user, pendingCredential)
+    }
   }
 
   async function getSignInMethods(email) {

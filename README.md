@@ -102,3 +102,7 @@ src/
   components/            TripCard, CategorySection, ItemRow, ProgressBar, modals, ThemePicker
   data/sampleTrip.js     The Galápagos & Peru starter list seeded from the dashboard
 ```
+
+---
+
+Have a great trip! If anything breaks or looks off, reach out to Sam (atlantaheller@gmail.com) and I'll take a look.

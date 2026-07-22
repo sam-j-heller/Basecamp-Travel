@@ -1,6 +1,6 @@
 // A starter packing list for a Galápagos + Peru trip, used by the
 // "Load Galápagos & Peru starter list" button on an empty dashboard.
-import { makeCategory, makeItem } from '../lib/tripModel'
+import { makeCategory, makeItem, makeList } from '../lib/tripModel'
 
 function category(name, items) {
   const cat = makeCategory(name)
@@ -14,7 +14,11 @@ export const sampleTrip = {
   endDate: '',
   themeColor: '#2f6f70',
   themeMotif: 'jungle',
-  categories: [
+  lists: [makeList('Recommended', recommendedCategories()), makeList('Follow along with Sam')],
+}
+
+function recommendedCategories() {
+  return [
     category('Luggage & Packing', [
       ['Osprey Farpoint 40 (main bag)', 1, ''],
       ['Gregory Citro 30 H2O (daypack)', 1, 'Bladder for Andes hikes'],
@@ -94,5 +98,5 @@ export const sampleTrip = {
       ['Credit/debit cards', 2, ''],
       ['Emergency contact info', 1, ''],
     ]),
-  ],
+  ]
 }

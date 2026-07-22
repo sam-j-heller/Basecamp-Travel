@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useAuth } from '../context/AuthContext'
 import { useTrips } from '../hooks/useTrips'
-import { createTrip, updateTripMeta, deleteTrip, duplicateTrip, saveCategories } from '../lib/tripsApi'
+import { createTrip, updateTripMeta, deleteTrip, duplicateTrip, saveLists } from '../lib/tripsApi'
 import { TripCard } from '../components/TripCard'
 import { TripFormModal } from '../components/TripFormModal'
 import { ConfirmDialog } from '../components/ConfirmDialog'
@@ -51,7 +51,7 @@ export function Dashboard() {
         themeColor: sampleTrip.themeColor,
         themeMotif: sampleTrip.themeMotif,
       })
-      await saveCategories(user.uid, tripId, sampleTrip.categories)
+      await saveLists(user.uid, tripId, sampleTrip.lists)
     } finally {
       setSeeding(false)
     }

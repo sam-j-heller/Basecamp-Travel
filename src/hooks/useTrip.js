@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
-import { listenToTrip, saveCategories } from '../lib/tripsApi'
+import { listenToTrip, saveLists } from '../lib/tripsApi'
+import { normalizeLists } from '../lib/tripModel'
 
 export function useTrip(uid, tripId) {
   const [trip, setTrip] = useState(null)
@@ -15,15 +16,15 @@ export function useTrip(uid, tripId) {
     return unsubscribe
   }, [uid, tripId])
 
-  // Apply a local categories transform, optimistically update, then persist.
-  function mutateCategories(transform) {
+  // Apply a local lists transform, optimistically update, then persist.
+  function mutateLists(transform) {
     setTrip((current) => {
       if (!current) return current
-      const nextCategories = transform(current.categories || [])
-      saveCategories(uid, tripId, nextCategories)
-      return { ...current, categories: nextCategories }
+      const nextLists = transform(normalizeLists(current))
+      saveLists(uid, tripId, nextLists)
+      return { ...current, lists: nextLists }
     })
   }
 
-  return { trip, loading, mutateCategories }
+  return { trip, loading, mutateLists }
 }

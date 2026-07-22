@@ -11,7 +11,7 @@ import {
   serverTimestamp,
 } from 'firebase/firestore'
 import { db } from '../firebase'
-import { cloneCategoriesAsTemplate } from './tripModel'
+import { makeList, normalizeLists, cloneListsAsTemplate } from './tripModel'
 
 function tripsCollection(uid) {
   return collection(db, 'users', uid, 'trips')
@@ -41,7 +41,7 @@ export async function createTrip(uid, { name, startDate, endDate, themeColor, th
     endDate: endDate || null,
     themeColor: themeColor || '#3f6b52',
     themeMotif: themeMotif || 'mountain',
-    categories: [],
+    lists: [makeList('Recommended'), makeList('Follow along with Sam')],
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp(),
   })
@@ -56,8 +56,8 @@ export async function deleteTrip(uid, tripId) {
   await deleteDoc(tripDoc(uid, tripId))
 }
 
-export async function saveCategories(uid, tripId, categories) {
-  await updateDoc(tripDoc(uid, tripId), { categories, updatedAt: serverTimestamp() })
+export async function saveLists(uid, tripId, lists) {
+  await updateDoc(tripDoc(uid, tripId), { lists, updatedAt: serverTimestamp() })
 }
 
 export async function duplicateTrip(uid, tripId, newName) {
@@ -70,7 +70,7 @@ export async function duplicateTrip(uid, tripId, newName) {
     endDate: null,
     themeColor: original.themeColor || '#3f6b52',
     themeMotif: original.themeMotif || 'mountain',
-    categories: cloneCategoriesAsTemplate(original.categories || []),
+    lists: cloneListsAsTemplate(normalizeLists(original)),
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp(),
   })

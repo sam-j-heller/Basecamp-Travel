@@ -1,9 +1,32 @@
-// Pure helpers for working with a trip's categories/items array in memory.
-// The whole `categories` array is written back to Firestore on every change —
+// Pure helpers for working with a trip's lists/categories/items in memory.
+// The whole `lists` array is written back to Firestore on every change —
 // packing lists are small, so this keeps sync logic simple (one doc, one listener).
 
 export function newId() {
   return crypto.randomUUID()
+}
+
+export function makeList(name, categories = []) {
+  return { id: newId(), name, categories }
+}
+
+// Trips created before multi-list support only have a flat `categories` array.
+// Wrap it as a single "Recommended" list so old trips keep working unchanged.
+export function normalizeLists(trip) {
+  if (trip.lists && trip.lists.length > 0) return trip.lists
+  return [makeList('Recommended', trip.categories || [])]
+}
+
+export function addList(lists, name) {
+  return [...lists, makeList(name)]
+}
+
+export function renameList(lists, listId, name) {
+  return lists.map((l) => (l.id === listId ? { ...l, name } : l))
+}
+
+export function deleteList(lists, listId) {
+  return lists.filter((l) => l.id !== listId)
 }
 
 export function makeCategory(name) {
@@ -83,6 +106,17 @@ export function tripProgress(categories) {
   )
 }
 
+// Combined progress across every list on a trip, for the dashboard summary card.
+export function allListsProgress(lists) {
+  return lists.reduce(
+    (acc, l) => {
+      const { packed, total } = tripProgress(l.categories)
+      return { packed: acc.packed + packed, total: acc.total + total }
+    },
+    { packed: 0, total: 0 }
+  )
+}
+
 // Clones categories/items with fresh ids and packed reset to false, for "duplicate trip".
 export function cloneCategoriesAsTemplate(categories) {
   return categories.map((c) => ({
@@ -95,5 +129,14 @@ export function cloneCategoriesAsTemplate(categories) {
       notes: i.notes,
       packed: false,
     })),
+  }))
+}
+
+// Clones every list on a trip (all travelers' lists), for "duplicate trip".
+export function cloneListsAsTemplate(lists) {
+  return lists.map((l) => ({
+    id: newId(),
+    name: l.name,
+    categories: cloneCategoriesAsTemplate(l.categories),
   }))
 }
