@@ -6,6 +6,7 @@ import { CategorySection } from '../components/CategorySection'
 import { ProgressBar } from '../components/ProgressBar'
 import { ConfirmDialog } from '../components/ConfirmDialog'
 import { StickFigureWave } from '../components/StickFigureWave'
+import { recommendedCategories, samCategories } from '../data/galapagosRealLists'
 import {
   addCategory,
   renameCategory,
@@ -34,6 +35,7 @@ export function TripPage() {
   const [editingListName, setEditingListName] = useState(false)
   const [listNameDraft, setListNameDraft] = useState('')
   const [confirmDeleteList, setConfirmDeleteList] = useState(false)
+  const [confirmImport, setConfirmImport] = useState(false)
 
   if (loading) return <p className="dashboard-empty">Loading trip…</p>
   if (!trip) return <p className="dashboard-empty">Trip not found.</p>
@@ -84,6 +86,20 @@ export function TripPage() {
     setConfirmDeleteList(false)
   }
 
+  // TEMPORARY: one-time import of the real Galápagos & Peru packing data.
+  // Remove this handler, the button below, and src/data/galapagosRealLists.js
+  // once confirmed loaded.
+  function handleImportRealData() {
+    mutateLists((currentLists) =>
+      currentLists.map((l) => {
+        if (l.name === 'Recommended') return { ...l, categories: recommendedCategories() }
+        if (l.name === 'Follow along with Sam') return { ...l, categories: samCategories() }
+        return l
+      })
+    )
+    setConfirmImport(false)
+  }
+
   return (
     <div className={`trip-page motif-${trip.themeMotif || 'mountain'}`} style={{ '--trip-color': trip.themeColor }}>
       <header className="trip-page-header">
@@ -93,6 +109,11 @@ export function TripPage() {
         <h1>{trip.name}</h1>
         <ProgressBar packed={packed} total={total} size="lg" />
       </header>
+
+      {/* TEMPORARY — see handleImportRealData above */}
+      <button className="btn btn-ghost" style={{ marginBottom: '1rem' }} onClick={() => setConfirmImport(true)}>
+        Import real packing data (temporary)
+      </button>
 
       <div className="list-tabs">
         {lists.map((list) => (
@@ -210,6 +231,17 @@ export function TripPage() {
           danger
           onConfirm={handleDeleteList}
           onCancel={() => setConfirmDeleteList(false)}
+        />
+      )}
+
+      {confirmImport && (
+        <ConfirmDialog
+          title="Import real packing data"
+          message={`This replaces everything currently in "Recommended" and "Follow along with Sam" on this trip. This can't be undone.`}
+          confirmLabel="Import"
+          danger
+          onConfirm={handleImportRealData}
+          onCancel={() => setConfirmImport(false)}
         />
       )}
     </div>
