@@ -45,7 +45,7 @@ export async function createSharedTrip(ownerUid, { name, startDate, endDate, the
     themeMotif: themeMotif || 'mountain',
     ownerUid,
     lists,
-    guestEditingEnabled: false,
+    guestEditableListIds: [],
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp(),
   })
@@ -70,9 +70,11 @@ export async function updateSharedTripLists(tripId, lists) {
 }
 
 // Admin-only in practice (enforced by firestore.rules, not just this call) —
-// opens or closes structure-editing to anyone with the trip's link.
-export async function setGuestEditingEnabled(tripId, enabled) {
-  await updateDoc(sharedTripDoc(tripId), { guestEditingEnabled: enabled })
+// opens or closes structure-editing for one specific list, to anyone with
+// the trip's link.
+export async function setListGuestEditable(tripId, currentIds, listId, enabled) {
+  const next = enabled ? [...new Set([...currentIds, listId])] : currentIds.filter((id) => id !== listId)
+  await updateDoc(sharedTripDoc(tripId), { guestEditableListIds: next })
 }
 
 // Returns { packedItemIds, ownedItemIds, buyItemIds } (each defaulting to []).

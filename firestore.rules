@@ -16,18 +16,24 @@ service cloud.firestore {
 
       // Two ways to pass structure writes:
       // 1. The site admin (one specific account, not "whoever owns this
-      //    trip") — full access, including flipping guestEditingEnabled.
-      // 2. Anyone else, only while guestEditingEnabled is already true, and
-      //    only if their write doesn't itself change that flag — a guest
-      //    can use the door once it's open, but can't open or close it.
+      //    trip") — full access, including changing guestEditableListIds.
+      // 2. Anyone else, only while guestEditableListIds is non-empty (the
+      //    admin unlocked at least one list), and only if their write
+      //    doesn't itself change that set — a guest can use whichever
+      //    doors are open, but can't open or close any of them. Note this
+      //    is a document-level gate, not a true per-list write boundary:
+      //    once any list is unlocked, a guest's write to the whole `lists`
+      //    array is permitted, and it's the client UI (not this rule) that
+      //    only ever offers editing on the specific unlocked list(s).
       allow update: if request.auth != null
         && request.resource.data.ownerUid == resource.data.ownerUid
         && request.resource.data.lists is list
         && (
           request.auth.token.email == 'atlantaheller@gmail.com'
           || (
-            resource.data.guestEditingEnabled == true
-            && request.resource.data.guestEditingEnabled == resource.data.guestEditingEnabled
+            resource.data.guestEditableListIds is list
+            && resource.data.guestEditableListIds.size() > 0
+            && request.resource.data.guestEditableListIds == resource.data.guestEditableListIds
           )
         );
       allow delete: if request.auth != null && request.auth.uid == resource.data.ownerUid;

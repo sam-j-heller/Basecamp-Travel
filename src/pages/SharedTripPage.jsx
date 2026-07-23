@@ -9,7 +9,7 @@ import { ConfirmDialog } from '../components/ConfirmDialog'
 import { StickFigureWave } from '../components/StickFigureWave'
 import { ImportListModal } from '../components/ImportListModal'
 import { isSiteAdmin } from '../lib/admin'
-import { setGuestEditingEnabled } from '../lib/sharedTripsApi'
+import { setListGuestEditable } from '../lib/sharedTripsApi'
 import {
   addCategory,
   renameCategory,
@@ -73,9 +73,10 @@ export function SharedTripPage() {
   if (lists.length === 0) return <p className="dashboard-empty">This trip has no lists yet.</p>
 
   const isAdmin = isSiteAdmin(user)
-  const canEditStructure = isOwner || trip.guestEditingEnabled
+  const guestEditableListIds = trip.guestEditableListIds || []
 
   const activeList = lists.find((l) => l.id === activeListId) || lists[0]
+  const canEditStructure = isOwner || guestEditableListIds.includes(activeList.id)
   const canToggleOwnedItems = isOwner || !activeList.synced
   const relevantPacked = new Set(activeList.synced ? ownerPacked : myPacked)
   const relevantOwned = new Set(activeList.synced ? ownerOwned : myOwned)
@@ -164,8 +165,8 @@ export function SharedTripPage() {
     }
   }
 
-  function handleToggleGuestEditing() {
-    setGuestEditingEnabled(tripId, !trip.guestEditingEnabled)
+  function handleToggleGuestEditingForActiveList() {
+    setListGuestEditable(tripId, guestEditableListIds, activeList.id, !guestEditableListIds.includes(activeList.id))
   }
 
   return (
@@ -178,18 +179,11 @@ export function SharedTripPage() {
         <ProgressBar packed={packed} total={total} size="lg" />
       </header>
 
-      {(isOwner || isAdmin) && (
+      {isOwner && (
         <div className="dashboard-toolbar" style={{ marginBottom: '1rem' }}>
-          {isOwner && (
-            <button className="btn btn-ghost" onClick={handleCopyLink}>
-              {copied ? 'Link copied!' : '🔗 Copy share link'}
-            </button>
-          )}
-          {isAdmin && (
-            <button className="btn btn-ghost" onClick={handleToggleGuestEditing}>
-              {trip.guestEditingEnabled ? '🔓 Guest editing: On' : '🔒 Guest editing: Off'}
-            </button>
-          )}
+          <button className="btn btn-ghost" onClick={handleCopyLink}>
+            {copied ? 'Link copied!' : '🔗 Copy share link'}
+          </button>
         </div>
       )}
 
@@ -220,6 +214,16 @@ export function SharedTripPage() {
             </button>
           ))}
       </div>
+
+      {isAdmin && (
+        <div className="list-toolbar">
+          <button className="icon-btn" title="Toggle guest editing for this list" onClick={handleToggleGuestEditingForActiveList}>
+            {guestEditableListIds.includes(activeList.id)
+              ? `🔓 Guests can edit "${activeList.name}"`
+              : `🔒 Guests can't edit "${activeList.name}"`}
+          </button>
+        </div>
+      )}
 
       {canEditStructure && (
         <div className="list-toolbar">
