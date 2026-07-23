@@ -45,6 +45,7 @@ export async function createSharedTrip(ownerUid, { name, startDate, endDate, the
     themeMotif: themeMotif || 'mountain',
     ownerUid,
     lists,
+    guestEditingEnabled: false,
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp(),
   })
@@ -66,6 +67,12 @@ export function listenToOwnedSharedTrips(uid, onChange) {
 
 export async function updateSharedTripLists(tripId, lists) {
   await updateDoc(sharedTripDoc(tripId), { lists, updatedAt: serverTimestamp() })
+}
+
+// Admin-only in practice (enforced by firestore.rules, not just this call) —
+// opens or closes structure-editing to anyone with the trip's link.
+export async function setGuestEditingEnabled(tripId, enabled) {
+  await updateDoc(sharedTripDoc(tripId), { guestEditingEnabled: enabled })
 }
 
 // Returns { packedItemIds, ownedItemIds, buyItemIds } (each defaulting to []).

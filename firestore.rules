@@ -13,10 +13,23 @@ service cloud.firestore {
       allow read: if request.auth != null;
       allow create: if request.auth != null
         && request.auth.uid == request.resource.data.ownerUid;
+
+      // Two ways to pass structure writes:
+      // 1. The site admin (one specific account, not "whoever owns this
+      //    trip") — full access, including flipping guestEditingEnabled.
+      // 2. Anyone else, only while guestEditingEnabled is already true, and
+      //    only if their write doesn't itself change that flag — a guest
+      //    can use the door once it's open, but can't open or close it.
       allow update: if request.auth != null
-        && request.auth.uid == resource.data.ownerUid
         && request.resource.data.ownerUid == resource.data.ownerUid
-        && request.resource.data.lists is list;
+        && request.resource.data.lists is list
+        && (
+          request.auth.token.email == 'atlantaheller@gmail.com'
+          || (
+            resource.data.guestEditingEnabled == true
+            && request.resource.data.guestEditingEnabled == resource.data.guestEditingEnabled
+          )
+        );
       allow delete: if request.auth != null && request.auth.uid == resource.data.ownerUid;
 
       match /packedStatus/{uid} {

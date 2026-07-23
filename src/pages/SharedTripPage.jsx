@@ -8,6 +8,8 @@ import { ProgressBar } from '../components/ProgressBar'
 import { ConfirmDialog } from '../components/ConfirmDialog'
 import { StickFigureWave } from '../components/StickFigureWave'
 import { ImportListModal } from '../components/ImportListModal'
+import { isSiteAdmin } from '../lib/admin'
+import { setGuestEditingEnabled } from '../lib/sharedTripsApi'
 import {
   addCategory,
   renameCategory,
@@ -69,6 +71,9 @@ export function SharedTripPage() {
 
   const lists = trip.lists || []
   if (lists.length === 0) return <p className="dashboard-empty">This trip has no lists yet.</p>
+
+  const isAdmin = isSiteAdmin(user)
+  const canEditStructure = isOwner || trip.guestEditingEnabled
 
   const activeList = lists.find((l) => l.id === activeListId) || lists[0]
   const canToggleOwnedItems = isOwner || !activeList.synced
@@ -159,6 +164,10 @@ export function SharedTripPage() {
     }
   }
 
+  function handleToggleGuestEditing() {
+    setGuestEditingEnabled(tripId, !trip.guestEditingEnabled)
+  }
+
   return (
     <div className={`trip-page motif-${trip.themeMotif || 'mountain'}`} style={{ '--trip-color': trip.themeColor }}>
       <header className="trip-page-header">
@@ -169,10 +178,19 @@ export function SharedTripPage() {
         <ProgressBar packed={packed} total={total} size="lg" />
       </header>
 
-      {isOwner && (
-        <button className="btn btn-ghost" style={{ marginBottom: '1rem' }} onClick={handleCopyLink}>
-          {copied ? 'Link copied!' : '🔗 Copy share link'}
-        </button>
+      {(isOwner || isAdmin) && (
+        <div className="dashboard-toolbar" style={{ marginBottom: '1rem' }}>
+          {isOwner && (
+            <button className="btn btn-ghost" onClick={handleCopyLink}>
+              {copied ? 'Link copied!' : '🔗 Copy share link'}
+            </button>
+          )}
+          {isAdmin && (
+            <button className="btn btn-ghost" onClick={handleToggleGuestEditing}>
+              {trip.guestEditingEnabled ? '🔓 Guest editing: On' : '🔒 Guest editing: Off'}
+            </button>
+          )}
+        </div>
       )}
 
       <div className="list-tabs">
@@ -185,7 +203,7 @@ export function SharedTripPage() {
             {list.name}
           </button>
         ))}
-        {isOwner &&
+        {canEditStructure &&
           (addingList ? (
             <form className="list-tab-add-form" onSubmit={handleAddList}>
               <input
@@ -203,7 +221,7 @@ export function SharedTripPage() {
           ))}
       </div>
 
-      {isOwner && (
+      {canEditStructure && (
         <div className="list-toolbar">
           {editingListName ? (
             <input
@@ -258,7 +276,7 @@ export function SharedTripPage() {
             category={category}
             isFirst={i === 0}
             isLast={i === hydratedCategories.length - 1}
-            readOnly={!isOwner}
+            readOnly={!canEditStructure}
             onRenameCategory={(name) => mutateActiveListCategories((cats) => renameCategory(cats, category.id, name))}
             onDeleteCategory={() => mutateActiveListCategories((cats) => deleteCategory(cats, category.id))}
             onMoveCategoryUp={() => mutateActiveListCategories((cats) => moveCategory(cats, category.id, -1))}
@@ -299,7 +317,7 @@ export function SharedTripPage() {
         ))}
       </div>
 
-      {isOwner && (
+      {canEditStructure && (
         <form className="add-category-form" onSubmit={handleAddCategory}>
           <input
             placeholder="New category name…"
