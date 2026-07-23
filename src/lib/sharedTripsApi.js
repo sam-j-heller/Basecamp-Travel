@@ -73,6 +73,14 @@ export async function updateSharedTripLists(tripId, lists) {
   await updateDoc(sharedTripDoc(tripId), { lists, updatedAt: serverTimestamp() })
 }
 
+// Owner-only in practice (same rule as updateSharedTripLists) — name, dates,
+// theme, header photo. Deliberately separate from the per-list guest-editing
+// door: renaming/re-theming a trip is an owner action, not something a
+// guest-editable list should imply.
+export async function updateSharedTripMeta(tripId, patch) {
+  await updateDoc(sharedTripDoc(tripId), { ...patch, updatedAt: serverTimestamp() })
+}
+
 // Admin-only in practice (enforced by firestore.rules, not just this call) —
 // opens or closes structure-editing for one specific list, to anyone with
 // the trip's link.

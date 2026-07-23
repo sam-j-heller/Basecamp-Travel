@@ -8,8 +8,9 @@ import { ProgressBar } from '../components/ProgressBar'
 import { ConfirmDialog } from '../components/ConfirmDialog'
 import { StickFigureWave } from '../components/StickFigureWave'
 import { ImportListModal } from '../components/ImportListModal'
+import { TripFormModal } from '../components/TripFormModal'
 import { isSiteAdmin } from '../lib/admin'
-import { setListGuestEditable } from '../lib/sharedTripsApi'
+import { setListGuestEditable, updateSharedTripMeta } from '../lib/sharedTripsApi'
 import {
   addCategory,
   renameCategory,
@@ -66,6 +67,7 @@ export function SharedTripPage() {
   const [newCategoryName, setNewCategoryName] = useState('')
   const [newPersonalItemName, setNewPersonalItemName] = useState('')
   const [copied, setCopied] = useState(false)
+  const [showEditTrip, setShowEditTrip] = useState(false)
 
   if (loading) return <p className="dashboard-empty">Loading trip…</p>
   if (!trip) return <p className="dashboard-empty">Trip not found, or you don't have access.</p>
@@ -170,6 +172,11 @@ export function SharedTripPage() {
     setListGuestEditable(tripId, guestEditableListIds, activeList.id, !guestEditableListIds.includes(activeList.id))
   }
 
+  async function handleEditTrip(values) {
+    await updateSharedTripMeta(tripId, values)
+    setShowEditTrip(false)
+  }
+
   return (
     <div className={`trip-page motif-${trip.themeMotif || 'mountain'}`} style={{ '--trip-color': trip.themeColor }}>
       <header className="trip-page-header" style={headerPhotoStyle(trip)}>
@@ -184,6 +191,9 @@ export function SharedTripPage() {
         <div className="dashboard-toolbar" style={{ marginBottom: '1rem' }}>
           <button className="btn btn-ghost" onClick={handleCopyLink}>
             {copied ? 'Link copied!' : '🔗 Copy share link'}
+          </button>
+          <button className="btn btn-ghost" onClick={() => setShowEditTrip(true)}>
+            ✎ Edit trip
           </button>
         </div>
       )}
@@ -384,6 +394,16 @@ export function SharedTripPage() {
           listName={activeList.name}
           onImport={handleImportText}
           onCancel={() => setShowImportModal(false)}
+        />
+      )}
+
+      {showEditTrip && (
+        <TripFormModal
+          title="Edit trip"
+          initial={trip}
+          submitLabel="Save"
+          onSubmit={handleEditTrip}
+          onCancel={() => setShowEditTrip(false)}
         />
       )}
     </div>
