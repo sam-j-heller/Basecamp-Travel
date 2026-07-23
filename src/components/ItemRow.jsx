@@ -1,8 +1,24 @@
 import { useState } from 'react'
 
+function StatusCheck({ label, checked, onToggle }) {
+  return (
+    <label className="status-check">
+      <span className="status-check-label">{label}</span>
+      <input
+        type="checkbox"
+        checked={checked}
+        disabled={!onToggle}
+        onChange={onToggle ? (e) => onToggle(e.target.checked) : undefined}
+      />
+    </label>
+  )
+}
+
 export function ItemRow({
   item,
-  onToggle,
+  onTogglePacked,
+  onToggleOwned,
+  onToggleBuy,
   onQuantityChange,
   onNotesChange,
   onRename,
@@ -25,12 +41,11 @@ export function ItemRow({
   return (
     <li className={`item-row ${item.packed ? 'packed' : ''}`}>
       <div className="item-row-main">
-        <input
-          type="checkbox"
-          checked={item.packed}
-          disabled={!onToggle}
-          onChange={onToggle ? (e) => onToggle(e.target.checked) : undefined}
-        />
+        <div className="status-checks">
+          <StatusCheck label="Own" checked={item.owned} onToggle={onToggleOwned} />
+          <StatusCheck label="Buy" checked={item.buy} onToggle={onToggleBuy} />
+          <StatusCheck label="Packed" checked={item.packed} onToggle={onTogglePacked} />
+        </div>
 
         {!readOnly && editingName ? (
           <input

@@ -90,6 +90,8 @@ Vercel also works if you'd rather not use GitHub Actions — **New Project → I
 - **Multiple lists per trip** — each trip has a "Recommended" list plus a "Follow along with Sam" list (add more via "+ New list"); tabs switch between them, and the progress bar reflects whichever is active.
 - **Import list** — paste simple indented text (category per line, items indented below, `x3` for quantity, ` - note` for notes) to bulk-add categories/items to the current list without typing them in one at a time.
 - **Shared trips** — click "Make this a shared trip" on any private trip to create a shareable version at a `/shared/:tripId` link. Anyone signed in who has the link can open it: only the trip's owner can edit list/category/item structure, but everyone tracks their own packed status independently, and can add personal items under "My additions" that persist even when the owner edits the shared structure. A list literally named "Follow along with Sam" is special-cased to mirror the owner's own packed status for every viewer (read-only for everyone but the owner) instead of tracking independent progress.
+- **Own / Buy / Packed** — every item has three independent checkboxes instead of one (checking Own or Buy clears the other, since an item is either owned or needs buying). On shared trips, everyone tracks their own Own/Buy/Packed status the same way packed status works.
+- **Shopping cart** — the 🛒 icon on the dashboard shows a badge with your total "Buy" count across every trip (private and shared). Opening it groups items by trip, lets you adjust quantity (for trips you control), and has a "Got it" button that marks an item owned and takes it off the list.
 
 ## Project structure
 

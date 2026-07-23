@@ -13,7 +13,9 @@ export function CategorySection({
   onMoveCategoryUp,
   onMoveCategoryDown,
   onAddItem,
-  onToggleItem,
+  onTogglePacked,
+  onToggleOwned,
+  onToggleBuy,
   onItemQuantityChange,
   onItemNotesChange,
   onRenameItem,
@@ -86,7 +88,9 @@ export function CategorySection({
             key={item.id}
             item={item}
             readOnly={readOnly}
-            onToggle={onToggleItem ? (checked) => onToggleItem(item.id, checked) : undefined}
+            onTogglePacked={onTogglePacked ? (checked) => onTogglePacked(item.id, checked) : undefined}
+            onToggleOwned={onToggleOwned ? (checked) => onToggleOwned(item.id, checked) : undefined}
+            onToggleBuy={onToggleBuy ? (checked) => onToggleBuy(item.id, checked) : undefined}
             onQuantityChange={(q) => onItemQuantityChange(item.id, q)}
             onNotesChange={(notes) => onItemNotesChange(item.id, notes)}
             onRename={(name) => onRenameItem(item.id, name)}

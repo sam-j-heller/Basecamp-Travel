@@ -5,6 +5,10 @@ service cloud.firestore {
       allow read, write: if request.auth != null && request.auth.uid == userId;
     }
 
+    match /users/{userId}/sharedTripBookmarks/{tripId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+
     match /sharedTrips/{tripId} {
       allow read: if request.auth != null;
       allow create: if request.auth != null
@@ -18,8 +22,9 @@ service cloud.firestore {
       match /packedStatus/{uid} {
         allow read: if request.auth != null;
         allow write: if request.auth != null && request.auth.uid == uid
-          && request.resource.data.packedItemIds is list
-          && request.resource.data.packedItemIds.size() < 1000;
+          && (!('packedItemIds' in request.resource.data) || request.resource.data.packedItemIds is list)
+          && (!('ownedItemIds' in request.resource.data) || request.resource.data.ownedItemIds is list)
+          && (!('buyItemIds' in request.resource.data) || request.resource.data.buyItemIds is list);
       }
 
       match /personalItems/{uid} {

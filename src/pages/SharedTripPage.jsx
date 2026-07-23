@@ -26,6 +26,8 @@ import {
   updateFlatItem,
   deleteFlatItem,
   moveFlatItem,
+  ownedPatch,
+  buyPatch,
 } from '../lib/tripModel'
 
 function getShareUrl(tripId) {
@@ -40,10 +42,14 @@ export function SharedTripPage() {
     loading,
     isOwner,
     myPacked,
+    myOwned,
+    myBuy,
     ownerPacked,
+    ownerOwned,
+    ownerBuy,
     personalItems,
     mutateStructure,
-    toggleMyPacked,
+    toggleMyStatus,
     mutatePersonalItems,
   } = useSharedTrip(tripId, user.uid)
 
@@ -67,10 +73,17 @@ export function SharedTripPage() {
   const activeList = lists.find((l) => l.id === activeListId) || lists[0]
   const canToggleOwnedItems = isOwner || !activeList.synced
   const relevantPacked = new Set(activeList.synced ? ownerPacked : myPacked)
+  const relevantOwned = new Set(activeList.synced ? ownerOwned : myOwned)
+  const relevantBuy = new Set(activeList.synced ? ownerBuy : myBuy)
 
   const hydratedCategories = activeList.categories.map((c) => ({
     ...c,
-    items: c.items.map((i) => ({ ...i, packed: relevantPacked.has(i.id) })),
+    items: c.items.map((i) => ({
+      ...i,
+      packed: relevantPacked.has(i.id),
+      owned: relevantOwned.has(i.id),
+      buy: relevantBuy.has(i.id),
+    })),
   }))
 
   const personalListItems = personalItems[activeList.id] || []
@@ -251,8 +264,24 @@ export function SharedTripPage() {
             onMoveCategoryUp={() => mutateActiveListCategories((cats) => moveCategory(cats, category.id, -1))}
             onMoveCategoryDown={() => mutateActiveListCategories((cats) => moveCategory(cats, category.id, 1))}
             onAddItem={(name) => mutateActiveListCategories((cats) => addItem(cats, category.id, makeItem(name)))}
-            onToggleItem={
-              canToggleOwnedItems ? (itemId, isPacked) => toggleMyPacked(itemId, isPacked) : undefined
+            onTogglePacked={
+              canToggleOwnedItems ? (itemId, v) => toggleMyStatus('packed', itemId, v) : undefined
+            }
+            onToggleOwned={
+              canToggleOwnedItems
+                ? (itemId, v) => {
+                    toggleMyStatus('owned', itemId, v)
+                    if (v) toggleMyStatus('buy', itemId, false)
+                  }
+                : undefined
+            }
+            onToggleBuy={
+              canToggleOwnedItems
+                ? (itemId, v) => {
+                    toggleMyStatus('buy', itemId, v)
+                    if (v) toggleMyStatus('owned', itemId, false)
+                  }
+                : undefined
             }
             onItemQuantityChange={(itemId, quantity) =>
               mutateActiveListCategories((cats) => updateItem(cats, category.id, itemId, { quantity }))
@@ -292,7 +321,9 @@ export function SharedTripPage() {
             <ItemRow
               key={item.id}
               item={item}
-              onToggle={(checked) => mutatePersonal((items) => updateFlatItem(items, item.id, { packed: checked }))}
+              onTogglePacked={(checked) => mutatePersonal((items) => updateFlatItem(items, item.id, { packed: checked }))}
+              onToggleOwned={(checked) => mutatePersonal((items) => updateFlatItem(items, item.id, ownedPatch(checked)))}
+              onToggleBuy={(checked) => mutatePersonal((items) => updateFlatItem(items, item.id, buyPatch(checked)))}
               onQuantityChange={(q) => mutatePersonal((items) => updateFlatItem(items, item.id, { quantity: q }))}
               onNotesChange={(notes) => mutatePersonal((items) => updateFlatItem(items, item.id, { notes }))}
               onRename={(name) => mutatePersonal((items) => updateFlatItem(items, item.id, { name }))}

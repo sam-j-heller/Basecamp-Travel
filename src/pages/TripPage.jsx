@@ -8,7 +8,7 @@ import { ConfirmDialog } from '../components/ConfirmDialog'
 import { StickFigureWave } from '../components/StickFigureWave'
 import { ImportListModal } from '../components/ImportListModal'
 import { recommendedCategories, samCategories } from '../data/galapagosRealLists'
-import { createSharedTrip, initPackedStatus } from '../lib/sharedTripsApi'
+import { createSharedTrip, initItemStatus } from '../lib/sharedTripsApi'
 import {
   addCategory,
   renameCategory,
@@ -25,7 +25,9 @@ import {
   renameList,
   deleteList,
   stripPackedForSharing,
-  collectPackedIds,
+  collectItemIdsWhere,
+  ownedPatch,
+  buyPatch,
 } from '../lib/tripModel'
 
 export function TripPage() {
@@ -122,7 +124,9 @@ export function TripPage() {
         synced: l.name === 'Follow along with Sam',
         categories: stripPackedForSharing(l.categories),
       }))
-      const packedIds = lists.flatMap((l) => collectPackedIds(l.categories))
+      const packedItemIds = lists.flatMap((l) => collectItemIdsWhere(l.categories, 'packed'))
+      const ownedItemIds = lists.flatMap((l) => collectItemIdsWhere(l.categories, 'owned'))
+      const buyItemIds = lists.flatMap((l) => collectItemIdsWhere(l.categories, 'buy'))
       const newTripId = await createSharedTrip(user.uid, {
         name: trip.name,
         startDate: trip.startDate,
@@ -131,7 +135,7 @@ export function TripPage() {
         themeMotif: trip.themeMotif,
         lists: sharedLists,
       })
-      await initPackedStatus(newTripId, user.uid, packedIds)
+      await initItemStatus(newTripId, user.uid, { packedItemIds, ownedItemIds, buyItemIds })
       navigate(`/shared/${newTripId}`)
     } finally {
       setCreatingShared(false)
@@ -240,8 +244,14 @@ export function TripPage() {
             onMoveCategoryUp={() => mutateActiveListCategories((cats) => moveCategory(cats, category.id, -1))}
             onMoveCategoryDown={() => mutateActiveListCategories((cats) => moveCategory(cats, category.id, 1))}
             onAddItem={(name) => mutateActiveListCategories((cats) => addItem(cats, category.id, makeItem(name)))}
-            onToggleItem={(itemId, isPacked) =>
+            onTogglePacked={(itemId, isPacked) =>
               mutateActiveListCategories((cats) => updateItem(cats, category.id, itemId, { packed: isPacked }))
+            }
+            onToggleOwned={(itemId, isOwned) =>
+              mutateActiveListCategories((cats) => updateItem(cats, category.id, itemId, ownedPatch(isOwned)))
+            }
+            onToggleBuy={(itemId, isBuy) =>
+              mutateActiveListCategories((cats) => updateItem(cats, category.id, itemId, buyPatch(isBuy)))
             }
             onItemQuantityChange={(itemId, quantity) =>
               mutateActiveListCategories((cats) => updateItem(cats, category.id, itemId, { quantity }))

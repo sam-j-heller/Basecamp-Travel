@@ -14,6 +14,8 @@ import {
 } from 'firebase/firestore'
 import { db } from '../firebase'
 
+const STATUS_FIELD = { packed: 'packedItemIds', owned: 'ownedItemIds', buy: 'buyItemIds' }
+
 function sharedTripsCollection() {
   return collection(db, 'sharedTrips')
 }
@@ -22,12 +24,16 @@ function sharedTripDoc(tripId) {
   return doc(db, 'sharedTrips', tripId)
 }
 
-function packedStatusDoc(tripId, uid) {
+function itemStatusDoc(tripId, uid) {
   return doc(db, 'sharedTrips', tripId, 'packedStatus', uid)
 }
 
 function personalItemsDoc(tripId, uid) {
   return doc(db, 'sharedTrips', tripId, 'personalItems', uid)
+}
+
+function bookmarkDoc(uid, tripId) {
+  return doc(db, 'users', uid, 'sharedTripBookmarks', tripId)
 }
 
 export async function createSharedTrip(ownerUid, { name, startDate, endDate, themeColor, themeMotif, lists }) {
@@ -62,22 +68,26 @@ export async function updateSharedTripLists(tripId, lists) {
   await updateDoc(sharedTripDoc(tripId), { lists, updatedAt: serverTimestamp() })
 }
 
-export function listenToPackedStatus(tripId, uid, onChange) {
-  return onSnapshot(packedStatusDoc(tripId, uid), (snap) => {
-    onChange(snap.exists() ? snap.data().packedItemIds || [] : [])
+// Returns { packedItemIds, ownedItemIds, buyItemIds } (each defaulting to []).
+export function listenToItemStatus(tripId, uid, onChange) {
+  return onSnapshot(itemStatusDoc(tripId, uid), (snap) => {
+    const data = snap.exists() ? snap.data() : {}
+    onChange({
+      packedItemIds: data.packedItemIds || [],
+      ownedItemIds: data.ownedItemIds || [],
+      buyItemIds: data.buyItemIds || [],
+    })
   })
 }
 
-export async function initPackedStatus(tripId, uid, packedItemIds) {
-  await setDoc(packedStatusDoc(tripId, uid), { packedItemIds })
+export async function initItemStatus(tripId, uid, { packedItemIds = [], ownedItemIds = [], buyItemIds = [] }) {
+  await setDoc(itemStatusDoc(tripId, uid), { packedItemIds, ownedItemIds, buyItemIds })
 }
 
-export async function setItemPacked(tripId, uid, itemId, packed) {
-  await setDoc(
-    packedStatusDoc(tripId, uid),
-    { packedItemIds: packed ? arrayUnion(itemId) : arrayRemove(itemId) },
-    { merge: true }
-  )
+// field is 'packed' | 'owned' | 'buy'.
+export async function setItemStatus(tripId, uid, field, itemId, value) {
+  const key = STATUS_FIELD[field]
+  await setDoc(itemStatusDoc(tripId, uid), { [key]: value ? arrayUnion(itemId) : arrayRemove(itemId) }, { merge: true })
 }
 
 export function listenToPersonalItems(tripId, uid, onChange) {
@@ -93,4 +103,17 @@ export async function savePersonalItems(tripId, uid, byListId) {
 export async function getSharedTrip(tripId) {
   const snap = await getDoc(sharedTripDoc(tripId))
   return snap.exists() ? { id: snap.id, ...snap.data() } : null
+}
+
+// Records that this user has opened a shared trip, so their own dashboard/cart
+// can find trips they don't own (owners already get theirs via listenToOwnedSharedTrips).
+export async function recordSharedTripVisit(uid, tripId, tripName) {
+  await setDoc(bookmarkDoc(uid, tripId), { tripId, tripName, visitedAt: serverTimestamp() })
+}
+
+export function listenToSharedTripBookmarks(uid, onChange) {
+  const q = collection(db, 'users', uid, 'sharedTripBookmarks')
+  return onSnapshot(q, (snap) => {
+    onChange(snap.docs.map((d) => d.data()))
+  })
 }

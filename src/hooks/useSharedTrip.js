@@ -1,18 +1,21 @@
 import { useEffect, useState } from 'react'
 import {
   listenToSharedTrip,
-  listenToPackedStatus,
+  listenToItemStatus,
   listenToPersonalItems,
   updateSharedTripLists,
-  setItemPacked,
+  setItemStatus,
   savePersonalItems,
+  recordSharedTripVisit,
 } from '../lib/sharedTripsApi'
+
+const EMPTY_STATUS = { packedItemIds: [], ownedItemIds: [], buyItemIds: [] }
 
 export function useSharedTrip(tripId, myUid) {
   const [trip, setTrip] = useState(null)
   const [loading, setLoading] = useState(true)
-  const [myPacked, setMyPacked] = useState([])
-  const [ownerPackedRaw, setOwnerPackedRaw] = useState([])
+  const [myStatus, setMyStatus] = useState(EMPTY_STATUS)
+  const [ownerStatusRaw, setOwnerStatusRaw] = useState(EMPTY_STATUS)
   const [personalItems, setPersonalItems] = useState({})
 
   useEffect(() => {
@@ -26,7 +29,7 @@ export function useSharedTrip(tripId, myUid) {
 
   useEffect(() => {
     if (!tripId || !myUid) return
-    return listenToPackedStatus(tripId, myUid, setMyPacked)
+    return listenToItemStatus(tripId, myUid, setMyStatus)
   }, [tripId, myUid])
 
   useEffect(() => {
@@ -39,18 +42,23 @@ export function useSharedTrip(tripId, myUid) {
 
   useEffect(() => {
     if (!tripId || !ownerUid || isOwner) return
-    return listenToPackedStatus(tripId, ownerUid, setOwnerPackedRaw)
+    return listenToItemStatus(tripId, ownerUid, setOwnerStatusRaw)
   }, [tripId, ownerUid, isOwner])
 
-  const ownerPacked = isOwner ? myPacked : ownerPackedRaw
+  useEffect(() => {
+    if (!tripId || !myUid || !trip) return
+    recordSharedTripVisit(myUid, tripId, trip.name)
+  }, [tripId, myUid, trip?.name])
+
+  const ownerStatus = isOwner ? myStatus : ownerStatusRaw
 
   function mutateStructure(transform) {
     if (!trip) return
     updateSharedTripLists(tripId, transform(trip.lists))
   }
 
-  function toggleMyPacked(itemId, packed) {
-    setItemPacked(tripId, myUid, itemId, packed)
+  function toggleMyStatus(field, itemId, value) {
+    setItemStatus(tripId, myUid, field, itemId, value)
   }
 
   function mutatePersonalItems(listId, transform) {
@@ -64,11 +72,15 @@ export function useSharedTrip(tripId, myUid) {
     trip,
     loading,
     isOwner,
-    myPacked,
-    ownerPacked,
+    myPacked: myStatus.packedItemIds,
+    myOwned: myStatus.ownedItemIds,
+    myBuy: myStatus.buyItemIds,
+    ownerPacked: ownerStatus.packedItemIds,
+    ownerOwned: ownerStatus.ownedItemIds,
+    ownerBuy: ownerStatus.buyItemIds,
     personalItems,
     mutateStructure,
-    toggleMyPacked,
+    toggleMyStatus,
     mutatePersonalItems,
   }
 }

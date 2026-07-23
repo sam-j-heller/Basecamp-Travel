@@ -34,7 +34,7 @@ export function makeCategory(name) {
 }
 
 export function makeItem(name, quantity = 1, notes = '') {
-  return { id: newId(), name, quantity, notes, packed: false }
+  return { id: newId(), name, quantity, notes, owned: false, buy: false, packed: false }
 }
 
 export function addCategory(categories, name) {
@@ -62,6 +62,23 @@ export function addItem(categories, categoryId, item) {
   return categories.map((c) =>
     c.id === categoryId ? { ...c, items: [...c.items, item] } : c
   )
+}
+
+// Own/Buy are mutually exclusive (checking one clears the other), matching
+// the source tool this was modeled after.
+export function ownedPatch(isOwned) {
+  return isOwned ? { owned: true, buy: false } : { owned: false }
+}
+
+export function buyPatch(isBuy) {
+  return isBuy ? { buy: true, owned: false } : { buy: false }
+}
+
+// Finds the item's list by listId and applies an updateItem-style patch to
+// its categories — used by the shopping cart to edit an item that could
+// belong to any trip/list.
+export function updateItemInLists(lists, listId, categoryId, itemId, patch) {
+  return lists.map((l) => (l.id === listId ? { ...l, categories: updateItem(l.categories, categoryId, itemId, patch) } : l))
 }
 
 export function updateItem(categories, categoryId, itemId, patch) {
@@ -139,7 +156,7 @@ export function allListsProgress(lists) {
   )
 }
 
-// Clones categories/items with fresh ids and packed reset to false, for "duplicate trip".
+// Clones categories/items with fresh ids and owned/buy/packed reset, for "duplicate trip".
 export function cloneCategoriesAsTemplate(categories) {
   return categories.map((c) => ({
     id: newId(),
@@ -149,6 +166,8 @@ export function cloneCategoriesAsTemplate(categories) {
       name: i.name,
       quantity: i.quantity,
       notes: i.notes,
+      owned: false,
+      buy: false,
       packed: false,
     })),
   }))
@@ -164,9 +183,9 @@ export function cloneListsAsTemplate(lists) {
 }
 
 // For migrating a private trip's lists into a shared trip: keeps the same
-// category/item ids (so packedItemIds collected below still point at the
-// right items) but drops the embedded `packed` field, since shared trips
-// track packed status per-viewer instead.
+// category/item ids (so the id sets collected below still point at the
+// right items) but drops the embedded owned/buy/packed fields, since shared
+// trips track that status per-viewer instead.
 export function stripPackedForSharing(categories) {
   return categories.map((c) => ({
     id: c.id,
@@ -175,8 +194,21 @@ export function stripPackedForSharing(categories) {
   }))
 }
 
-// Collects the ids of every item currently marked packed, for seeding a
-// shared trip's initial packedStatus doc from a private trip's state.
+// Collects the ids of every item currently marked with a given boolean field
+// (owned/buy/packed), for seeding a shared trip's initial per-status docs
+// from a private trip's state.
+export function collectItemIdsWhere(categories, field) {
+  return categories.flatMap((c) => c.items.filter((i) => i[field]).map((i) => i.id))
+}
+
 export function collectPackedIds(categories) {
-  return categories.flatMap((c) => c.items.filter((i) => i.packed).map((i) => i.id))
+  return collectItemIdsWhere(categories, 'packed')
+}
+
+// Collects every item currently marked "buy" (with its category/list context),
+// for the cross-trip shopping cart.
+export function collectBuyItems(categories) {
+  return categories.flatMap((c) =>
+    c.items.filter((i) => i.buy).map((i) => ({ ...i, categoryName: c.name, categoryId: c.id }))
+  )
 }

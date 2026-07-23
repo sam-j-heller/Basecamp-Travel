@@ -3,11 +3,13 @@ import { Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { useTrips } from '../hooks/useTrips'
 import { useOwnedSharedTrips } from '../hooks/useOwnedSharedTrips'
+import { useShoppingCart } from '../hooks/useShoppingCart'
 import { createTrip, updateTripMeta, deleteTrip, duplicateTrip, saveLists } from '../lib/tripsApi'
 import { TripCard } from '../components/TripCard'
 import { TripFormModal } from '../components/TripFormModal'
 import { ConfirmDialog } from '../components/ConfirmDialog'
 import { SetPasswordModal } from '../components/SetPasswordModal'
+import { ShoppingCartModal } from '../components/ShoppingCartModal'
 import { sampleTrip } from '../data/sampleTrip'
 
 function getShareUrl(tripId) {
@@ -18,8 +20,10 @@ export function Dashboard() {
   const { user, signOut } = useAuth()
   const { trips, loading } = useTrips(user.uid)
   const sharedTrips = useOwnedSharedTrips(user.uid)
+  const cart = useShoppingCart(user.uid)
 
   const [showCreate, setShowCreate] = useState(false)
+  const [showCart, setShowCart] = useState(false)
   const [renamingTrip, setRenamingTrip] = useState(null)
   const [duplicatingTrip, setDuplicatingTrip] = useState(null)
   const [deletingTrip, setDeletingTrip] = useState(null)
@@ -83,6 +87,10 @@ export function Dashboard() {
           <p className="dashboard-subtitle">{user.email || 'Signed in'}</p>
         </div>
         <div className="dashboard-header-actions">
+          <button className="btn btn-ghost cart-btn" onClick={() => setShowCart(true)} title="Shopping cart">
+            🛒
+            {cart.totalCount > 0 && <span className="cart-badge">{cart.totalCount}</span>}
+          </button>
           {!hasPassword && (
             <button className="btn btn-ghost" onClick={() => setShowSetPassword(true)}>
               Set a password
@@ -186,6 +194,15 @@ export function Dashboard() {
       )}
 
       {showSetPassword && <SetPasswordModal onClose={() => setShowSetPassword(false)} />}
+
+      {showCart && (
+        <ShoppingCartModal
+          groups={cart.groups}
+          onUpdateQuantity={cart.updateQuantity}
+          onGotIt={cart.markGotIt}
+          onClose={() => setShowCart(false)}
+        />
+      )}
     </div>
   )
 }
