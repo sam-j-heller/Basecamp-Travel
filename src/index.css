@@ -385,6 +385,23 @@ input:focus {
   background: #fff;
 }
 
+/* Full-page hero photo backdrop — a fixed full-viewport layer rather than a
+   background-image on a growing element, so it doesn't stretch/distort on
+   tall pages and works on mobile (background-attachment:fixed doesn't). */
+.page-photo-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background-size: cover;
+  background-position: center;
+}
+.trip-page-content.has-photo {
+  background: rgba(255, 253, 248, 0.6);
+  border-radius: 20px;
+  padding: 1.25rem;
+  margin-top: -0.75rem;
+}
+
 /* ---------- List tabs ---------- */
 .list-tabs {
   display: flex;

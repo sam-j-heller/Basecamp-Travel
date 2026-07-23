@@ -31,7 +31,6 @@ import {
   moveFlatItem,
   ownedPatch,
   buyPatch,
-  headerPhotoStyle,
 } from '../lib/tripModel'
 
 function getShareUrl(tripId) {
@@ -179,7 +178,11 @@ export function SharedTripPage() {
 
   return (
     <div className={`trip-page motif-${trip.themeMotif || 'mountain'}`} style={{ '--trip-color': trip.themeColor }}>
-      <header className="trip-page-header" style={headerPhotoStyle(trip)}>
+      {trip.headerImageUrl && (
+        <div className="page-photo-backdrop" style={{ backgroundImage: `url("${trip.headerImageUrl}")` }} />
+      )}
+
+      <header className="trip-page-header">
         <Link to="/" className="back-link">
           ← All trips
         </Link>
@@ -187,6 +190,7 @@ export function SharedTripPage() {
         <ProgressBar packed={packed} total={total} size="lg" />
       </header>
 
+      <div className={`trip-page-content${trip.headerImageUrl ? ' has-photo' : ''}`}>
       {isOwner && (
         <div className="dashboard-toolbar" style={{ marginBottom: '1rem' }}>
           <button className="btn btn-ghost" onClick={handleCopyLink}>
@@ -377,6 +381,7 @@ export function SharedTripPage() {
           </button>
         </form>
       </section>
+      </div>
 
       {confirmDeleteList && (
         <ConfirmDialog

@@ -28,7 +28,6 @@ import {
   collectItemIdsWhere,
   ownedPatch,
   buyPatch,
-  headerPhotoStyle,
 } from '../lib/tripModel'
 
 export function TripPage() {
@@ -133,7 +132,11 @@ export function TripPage() {
 
   return (
     <div className={`trip-page motif-${trip.themeMotif || 'mountain'}`} style={{ '--trip-color': trip.themeColor }}>
-      <header className="trip-page-header" style={headerPhotoStyle(trip)}>
+      {trip.headerImageUrl && (
+        <div className="page-photo-backdrop" style={{ backgroundImage: `url("${trip.headerImageUrl}")` }} />
+      )}
+
+      <header className="trip-page-header">
         <Link to="/" className="back-link">
           ← All trips
         </Link>
@@ -141,6 +144,7 @@ export function TripPage() {
         <ProgressBar packed={packed} total={total} size="lg" />
       </header>
 
+      <div className={`trip-page-content${trip.headerImageUrl ? ' has-photo' : ''}`}>
       <div className="dashboard-toolbar" style={{ marginBottom: '1rem' }}>
         {trip.sharedTripId ? (
           <Link to={`/shared/${trip.sharedTripId}`} className="btn btn-secondary">
@@ -269,6 +273,7 @@ export function TripPage() {
           Add category
         </button>
       </form>
+      </div>
 
       {confirmDeleteList && (
         <ConfirmDialog
