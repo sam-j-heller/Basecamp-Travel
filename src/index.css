@@ -406,7 +406,9 @@ input:focus {
   background: rgba(255, 253, 248, 0.6);
   border-radius: 20px;
   padding: 1.25rem;
-  margin-top: -0.75rem;
+  /* Matches the header's own bleed (margin: 0 -1.25rem) so both span the
+     same width instead of the header appearing wider. */
+  margin: -0.75rem -1.25rem 0;
 }
 
 /* ---------- List tabs ---------- */
