@@ -30,6 +30,7 @@ import {
   moveFlatItem,
   ownedPatch,
   buyPatch,
+  headerPhotoStyle,
 } from '../lib/tripModel'
 
 function getShareUrl(tripId) {
@@ -171,7 +172,7 @@ export function SharedTripPage() {
 
   return (
     <div className={`trip-page motif-${trip.themeMotif || 'mountain'}`} style={{ '--trip-color': trip.themeColor }}>
-      <header className="trip-page-header">
+      <header className="trip-page-header" style={headerPhotoStyle(trip)}>
         <Link to="/" className="back-link">
           ← All trips
         </Link>

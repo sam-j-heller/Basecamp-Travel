@@ -28,6 +28,7 @@ import {
   collectItemIdsWhere,
   ownedPatch,
   buyPatch,
+  headerPhotoStyle,
 } from '../lib/tripModel'
 
 export function TripPage() {
@@ -118,6 +119,7 @@ export function TripPage() {
         endDate: trip.endDate,
         themeColor: trip.themeColor,
         themeMotif: trip.themeMotif,
+        headerImageUrl: trip.headerImageUrl,
         lists: sharedLists,
       })
       await initItemStatus(newTripId, user.uid, { packedItemIds, ownedItemIds, buyItemIds })
@@ -131,7 +133,7 @@ export function TripPage() {
 
   return (
     <div className={`trip-page motif-${trip.themeMotif || 'mountain'}`} style={{ '--trip-color': trip.themeColor }}>
-      <header className="trip-page-header">
+      <header className="trip-page-header" style={headerPhotoStyle(trip)}>
         <Link to="/" className="back-link">
           ← All trips
         </Link>

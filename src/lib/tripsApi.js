@@ -34,13 +34,14 @@ export function listenToTrip(uid, tripId, onChange) {
   })
 }
 
-export async function createTrip(uid, { name, startDate, endDate, themeColor, themeMotif }) {
+export async function createTrip(uid, { name, startDate, endDate, themeColor, themeMotif, headerImageUrl }) {
   const ref = await addDoc(tripsCollection(uid), {
     name,
     startDate: startDate || null,
     endDate: endDate || null,
     themeColor: themeColor || '#c96f34',
     themeMotif: themeMotif || 'mountain',
+    headerImageUrl: headerImageUrl || null,
     lists: [makeList('Recommended'), makeList('Follow along with Sam')],
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp(),
@@ -70,6 +71,7 @@ export async function duplicateTrip(uid, tripId, newName) {
     endDate: null,
     themeColor: original.themeColor || '#c96f34',
     themeMotif: original.themeMotif || 'mountain',
+    headerImageUrl: original.headerImageUrl || null,
     lists: cloneListsAsTemplate(normalizeLists(original)),
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp(),

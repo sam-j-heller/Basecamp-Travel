@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 import { ProgressBar } from './ProgressBar'
-import { allListsProgress, normalizeLists } from '../lib/tripModel'
+import { allListsProgress, normalizeLists, headerPhotoStyle } from '../lib/tripModel'
 
 function formatDateRange(start, end) {
   if (!start && !end) return null
@@ -14,11 +14,12 @@ function formatDateRange(start, end) {
 export function TripCard({ trip, onRename, onDuplicate, onDelete }) {
   const { packed, total } = allListsProgress(normalizeLists(trip))
   const dateLabel = formatDateRange(trip.startDate, trip.endDate)
+  const headerStyle = headerPhotoStyle(trip)
 
   return (
     <div className={`trip-card motif-${trip.themeMotif || 'mountain'}`} style={{ '--trip-color': trip.themeColor }}>
       <Link to={`/trip/${trip.id}`} className="trip-card-link">
-        <div className="trip-card-header">
+        <div className="trip-card-header" style={headerStyle}>
           <h3>{trip.name}</h3>
           {dateLabel && <span className="trip-dates">{dateLabel}</span>}
         </div>

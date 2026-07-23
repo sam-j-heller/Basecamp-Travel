@@ -36,13 +36,17 @@ function bookmarkDoc(uid, tripId) {
   return doc(db, 'users', uid, 'sharedTripBookmarks', tripId)
 }
 
-export async function createSharedTrip(ownerUid, { name, startDate, endDate, themeColor, themeMotif, lists }) {
+export async function createSharedTrip(
+  ownerUid,
+  { name, startDate, endDate, themeColor, themeMotif, headerImageUrl, lists }
+) {
   const ref = await addDoc(sharedTripsCollection(), {
     name,
     startDate: startDate || null,
     endDate: endDate || null,
     themeColor: themeColor || '#c96f34',
     themeMotif: themeMotif || 'mountain',
+    headerImageUrl: headerImageUrl || null,
     ownerUid,
     lists,
     guestEditableListIds: [],

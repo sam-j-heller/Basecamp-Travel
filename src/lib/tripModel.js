@@ -6,6 +6,18 @@ export function newId() {
   return crypto.randomUUID()
 }
 
+// A photo header (pasted image URL) overrides the motif pattern with a
+// dark-gradient-over-photo look; returns undefined (no inline override) when
+// there's no photo, so the CSS motif background shows through instead.
+export function headerPhotoStyle(trip) {
+  if (!trip.headerImageUrl) return undefined
+  return {
+    backgroundImage: `linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.55)), url("${trip.headerImageUrl}")`,
+    backgroundSize: 'cover',
+    backgroundPosition: 'center',
+  }
+}
+
 export function makeList(name, categories = [], synced = false) {
   return { id: newId(), name, categories, synced }
 }

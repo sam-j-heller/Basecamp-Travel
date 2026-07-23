@@ -7,11 +7,12 @@ export function TripFormModal({ title, initial, submitLabel = 'Save', onSubmit, 
   const [endDate, setEndDate] = useState(initial?.endDate || '')
   const [themeMotif, setThemeMotif] = useState(initial?.themeMotif || 'mountain')
   const [themeColor, setThemeColor] = useState(initial?.themeColor || '#c96f34')
+  const [headerImageUrl, setHeaderImageUrl] = useState(initial?.headerImageUrl || '')
 
   function handleSubmit(e) {
     e.preventDefault()
     if (!name.trim()) return
-    onSubmit({ name: name.trim(), startDate, endDate, themeMotif, themeColor })
+    onSubmit({ name: name.trim(), startDate, endDate, themeMotif, themeColor, headerImageUrl: headerImageUrl.trim() })
   }
 
   return (
@@ -46,6 +47,16 @@ export function TripFormModal({ title, initial, submitLabel = 'Save', onSubmit, 
           onMotifChange={setThemeMotif}
           onColorChange={setThemeColor}
         />
+
+        <label className="field">
+          <span className="field-label">Header photo URL (optional)</span>
+          <input
+            type="url"
+            value={headerImageUrl}
+            onChange={(e) => setHeaderImageUrl(e.target.value)}
+            placeholder="https://…"
+          />
+        </label>
 
         <div className="modal-actions">
           <button type="button" className="btn btn-ghost" onClick={onCancel}>
