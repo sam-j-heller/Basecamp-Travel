@@ -9,6 +9,7 @@ import {
   query,
   orderBy,
   serverTimestamp,
+  runTransaction,
 } from 'firebase/firestore'
 import { db } from '../firebase'
 import { makeList, normalizeLists, cloneListsAsTemplate } from './tripModel'
@@ -59,6 +60,21 @@ export async function deleteTrip(uid, tripId) {
 
 export async function saveLists(uid, tripId, lists) {
   await updateDoc(tripDoc(uid, tripId), { lists, updatedAt: serverTimestamp() })
+}
+
+// Reads the CURRENT server value of `lists` and applies transform to it
+// inside a transaction, rather than trusting whatever a given tab's local
+// state happened to have — a stale tab (e.g. a dev server left open) can no
+// longer clobber a newer edit made elsewhere, since the transform always
+// runs against fresh data at write time.
+export async function mutateTripListsTransaction(uid, tripId, transform) {
+  const ref = tripDoc(uid, tripId)
+  await runTransaction(db, async (tx) => {
+    const snap = await tx.get(ref)
+    if (!snap.exists()) return
+    const currentLists = snap.data().lists || []
+    tx.update(ref, { lists: transform(currentLists), updatedAt: serverTimestamp() })
+  })
 }
 
 export async function duplicateTrip(uid, tripId, newName) {

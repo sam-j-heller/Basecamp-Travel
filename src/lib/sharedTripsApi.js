@@ -11,6 +11,7 @@ import {
   arrayUnion,
   arrayRemove,
   serverTimestamp,
+  runTransaction,
 } from 'firebase/firestore'
 import { db } from '../firebase'
 
@@ -73,6 +74,19 @@ export async function updateSharedTripLists(tripId, lists) {
   await updateDoc(sharedTripDoc(tripId), { lists, updatedAt: serverTimestamp() })
 }
 
+// Reads the CURRENT server value of `lists` and applies transform inside a
+// transaction, so a stale tab can't clobber a newer edit made elsewhere
+// (e.g. by a family member editing the same list moments apart).
+export async function mutateSharedTripListsTransaction(tripId, transform) {
+  const ref = sharedTripDoc(tripId)
+  await runTransaction(db, async (tx) => {
+    const snap = await tx.get(ref)
+    if (!snap.exists()) return
+    const currentLists = snap.data().lists || []
+    tx.update(ref, { lists: transform(currentLists), updatedAt: serverTimestamp() })
+  })
+}
+
 // Owner-only in practice (same rule as updateSharedTripLists) — name, dates,
 // theme, header photo. Deliberately separate from the per-list guest-editing
 // door: renaming/re-theming a trip is an owner action, not something a
@@ -119,6 +133,18 @@ export function listenToPersonalItems(tripId, uid, onChange) {
 
 export async function savePersonalItems(tripId, uid, byListId) {
   await setDoc(personalItemsDoc(tripId, uid), byListId)
+}
+
+// Reads the CURRENT server value for this list's personal items and applies
+// transform inside a transaction, same rationale as mutateSharedTripListsTransaction.
+export async function mutatePersonalItemsTransaction(tripId, uid, listId, transform) {
+  const ref = personalItemsDoc(tripId, uid)
+  await runTransaction(db, async (tx) => {
+    const snap = await tx.get(ref)
+    const current = snap.exists() ? snap.data() : {}
+    const currentItems = current[listId] || []
+    tx.set(ref, { ...current, [listId]: transform(currentItems) })
+  })
 }
 
 export async function getSharedTrip(tripId) {

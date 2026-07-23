@@ -3,9 +3,9 @@ import {
   listenToSharedTrip,
   listenToItemStatus,
   listenToPersonalItems,
-  updateSharedTripLists,
+  mutateSharedTripListsTransaction,
   setItemStatus,
-  savePersonalItems,
+  mutatePersonalItemsTransaction,
   recordSharedTripVisit,
 } from '../lib/sharedTripsApi'
 
@@ -52,9 +52,13 @@ export function useSharedTrip(tripId, myUid) {
 
   const ownerStatus = isOwner ? myStatus : ownerStatusRaw
 
+  // Optimistically update the local view for instant feedback, but persist
+  // via a transaction that re-applies transform to the CURRENT server data —
+  // so a stale tab (e.g. a dev server left open) can't clobber a newer edit.
   function mutateStructure(transform) {
     if (!trip) return
-    updateSharedTripLists(tripId, transform(trip.lists))
+    setTrip((current) => (current ? { ...current, lists: transform(current.lists) } : current))
+    mutateSharedTripListsTransaction(tripId, (currentLists) => transform(currentLists))
   }
 
   function toggleMyStatus(field, itemId, value) {
@@ -62,10 +66,8 @@ export function useSharedTrip(tripId, myUid) {
   }
 
   function mutatePersonalItems(listId, transform) {
-    const current = personalItems[listId] || []
-    const next = { ...personalItems, [listId]: transform(current) }
-    setPersonalItems(next)
-    savePersonalItems(tripId, myUid, next)
+    setPersonalItems((current) => ({ ...current, [listId]: transform(current[listId] || []) }))
+    mutatePersonalItemsTransaction(tripId, myUid, listId, transform)
   }
 
   return {

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { listenToTrip, saveLists } from '../lib/tripsApi'
+import { listenToTrip, mutateTripListsTransaction } from '../lib/tripsApi'
 import { normalizeLists } from '../lib/tripModel'
 
 export function useTrip(uid, tripId) {
@@ -16,14 +16,15 @@ export function useTrip(uid, tripId) {
     return unsubscribe
   }, [uid, tripId])
 
-  // Apply a local lists transform, optimistically update, then persist.
+  // Optimistically update the local view for instant feedback, but persist
+  // via a transaction that re-applies the same transform to the CURRENT
+  // server data — so a stale tab can't clobber a newer edit made elsewhere.
   function mutateLists(transform) {
     setTrip((current) => {
       if (!current) return current
-      const nextLists = transform(normalizeLists(current))
-      saveLists(uid, tripId, nextLists)
-      return { ...current, lists: nextLists }
+      return { ...current, lists: transform(normalizeLists(current)) }
     })
+    mutateTripListsTransaction(uid, tripId, (currentLists) => transform(currentLists))
   }
 
   return { trip, loading, mutateLists }
