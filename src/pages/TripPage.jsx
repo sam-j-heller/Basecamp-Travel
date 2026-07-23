@@ -7,8 +7,8 @@ import { ProgressBar } from '../components/ProgressBar'
 import { ConfirmDialog } from '../components/ConfirmDialog'
 import { StickFigureWave } from '../components/StickFigureWave'
 import { ImportListModal } from '../components/ImportListModal'
-import { recommendedCategories, samCategories } from '../data/galapagosRealLists'
 import { createSharedTrip, initItemStatus } from '../lib/sharedTripsApi'
+import { updateTripMeta } from '../lib/tripsApi'
 import {
   addCategory,
   renameCategory,
@@ -42,7 +42,6 @@ export function TripPage() {
   const [editingListName, setEditingListName] = useState(false)
   const [listNameDraft, setListNameDraft] = useState('')
   const [confirmDeleteList, setConfirmDeleteList] = useState(false)
-  const [confirmImport, setConfirmImport] = useState(false)
   const [showImportModal, setShowImportModal] = useState(false)
   const [confirmMakeShared, setConfirmMakeShared] = useState(false)
   const [creatingShared, setCreatingShared] = useState(false)
@@ -101,20 +100,6 @@ export function TripPage() {
     setShowImportModal(false)
   }
 
-  // TEMPORARY: one-time import of the real Galápagos & Peru packing data.
-  // Remove this handler, the button below, and src/data/galapagosRealLists.js
-  // once confirmed loaded.
-  function handleImportRealData() {
-    mutateLists((currentLists) =>
-      currentLists.map((l) => {
-        if (l.name === 'Recommended') return { ...l, categories: recommendedCategories() }
-        if (l.name === 'Follow along with Sam') return { ...l, categories: samCategories() }
-        return l
-      })
-    )
-    setConfirmImport(false)
-  }
-
   async function handleMakeSharedTrip() {
     setCreatingShared(true)
     try {
@@ -136,6 +121,7 @@ export function TripPage() {
         lists: sharedLists,
       })
       await initItemStatus(newTripId, user.uid, { packedItemIds, ownedItemIds, buyItemIds })
+      await updateTripMeta(user.uid, tripId, { sharedTripId: newTripId })
       navigate(`/shared/${newTripId}`)
     } finally {
       setCreatingShared(false)
@@ -154,13 +140,15 @@ export function TripPage() {
       </header>
 
       <div className="dashboard-toolbar" style={{ marginBottom: '1rem' }}>
-        {/* TEMPORARY — see handleImportRealData above */}
-        <button className="btn btn-ghost" onClick={() => setConfirmImport(true)}>
-          Import real packing data (temporary)
-        </button>
-        <button className="btn btn-secondary" onClick={() => setConfirmMakeShared(true)}>
-          👪 Make this a shared trip
-        </button>
+        {trip.sharedTripId ? (
+          <Link to={`/shared/${trip.sharedTripId}`} className="btn btn-secondary">
+            👪 View shared trip
+          </Link>
+        ) : (
+          <button className="btn btn-secondary" onClick={() => setConfirmMakeShared(true)}>
+            👪 Make this a shared trip
+          </button>
+        )}
       </div>
 
       <div className="list-tabs">
@@ -288,17 +276,6 @@ export function TripPage() {
           danger
           onConfirm={handleDeleteList}
           onCancel={() => setConfirmDeleteList(false)}
-        />
-      )}
-
-      {confirmImport && (
-        <ConfirmDialog
-          title="Import real packing data"
-          message={`This replaces everything currently in "Recommended" and "Follow along with Sam" on this trip. This can't be undone.`}
-          confirmLabel="Import"
-          danger
-          onConfirm={handleImportRealData}
-          onCancel={() => setConfirmImport(false)}
         />
       )}
 

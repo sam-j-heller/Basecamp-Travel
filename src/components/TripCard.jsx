@@ -25,6 +25,11 @@ export function TripCard({ trip, onRename, onDuplicate, onDelete }) {
         <ProgressBar packed={packed} total={total} />
       </Link>
       <div className="trip-card-actions">
+        {trip.sharedTripId && (
+          <Link to={`/shared/${trip.sharedTripId}`} className="icon-btn" title="View shared trip">
+            👪
+          </Link>
+        )}
         <button className="icon-btn" title="Rename" onClick={() => onRename(trip)}>
           ✎
         </button>

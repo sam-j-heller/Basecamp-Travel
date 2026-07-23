@@ -1,25 +1,17 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { useTrips } from '../hooks/useTrips'
-import { useOwnedSharedTrips } from '../hooks/useOwnedSharedTrips'
 import { useShoppingCart } from '../hooks/useShoppingCart'
-import { createTrip, updateTripMeta, deleteTrip, duplicateTrip, saveLists } from '../lib/tripsApi'
+import { createTrip, updateTripMeta, deleteTrip, duplicateTrip } from '../lib/tripsApi'
 import { TripCard } from '../components/TripCard'
 import { TripFormModal } from '../components/TripFormModal'
 import { ConfirmDialog } from '../components/ConfirmDialog'
 import { SetPasswordModal } from '../components/SetPasswordModal'
 import { ShoppingCartModal } from '../components/ShoppingCartModal'
-import { sampleTrip } from '../data/sampleTrip'
-
-function getShareUrl(tripId) {
-  return `${window.location.origin}${window.location.pathname}#/shared/${tripId}`
-}
 
 export function Dashboard() {
   const { user, signOut } = useAuth()
   const { trips, loading } = useTrips(user.uid)
-  const sharedTrips = useOwnedSharedTrips(user.uid)
   const cart = useShoppingCart(user.uid)
 
   const [showCreate, setShowCreate] = useState(false)
@@ -27,19 +19,7 @@ export function Dashboard() {
   const [renamingTrip, setRenamingTrip] = useState(null)
   const [duplicatingTrip, setDuplicatingTrip] = useState(null)
   const [deletingTrip, setDeletingTrip] = useState(null)
-  const [seeding, setSeeding] = useState(false)
   const [showSetPassword, setShowSetPassword] = useState(false)
-  const [copiedTripId, setCopiedTripId] = useState(null)
-
-  async function handleCopyShareLink(tripId) {
-    try {
-      await navigator.clipboard.writeText(getShareUrl(tripId))
-      setCopiedTripId(tripId)
-      setTimeout(() => setCopiedTripId(null), 2000)
-    } catch {
-      window.prompt('Copy this link:', getShareUrl(tripId))
-    }
-  }
 
   const hasPassword = user.providerData.some((p) => p.providerId === 'password')
 
@@ -61,22 +41,6 @@ export function Dashboard() {
   async function handleDelete() {
     await deleteTrip(user.uid, deletingTrip.id)
     setDeletingTrip(null)
-  }
-
-  async function handleLoadSample() {
-    setSeeding(true)
-    try {
-      const tripId = await createTrip(user.uid, {
-        name: sampleTrip.name,
-        startDate: sampleTrip.startDate,
-        endDate: sampleTrip.endDate,
-        themeColor: sampleTrip.themeColor,
-        themeMotif: sampleTrip.themeMotif,
-      })
-      await saveLists(user.uid, tripId, sampleTrip.lists)
-    } finally {
-      setSeeding(false)
-    }
   }
 
   return (
@@ -106,11 +70,6 @@ export function Dashboard() {
         <button className="btn btn-primary" onClick={() => setShowCreate(true)}>
           + New trip
         </button>
-        {trips.length === 0 && !loading && (
-          <button className="btn btn-secondary" onClick={handleLoadSample} disabled={seeding}>
-            {seeding ? 'Loading…' : '+ Load Galápagos & Peru starter list'}
-          </button>
-        )}
       </div>
 
       {loading ? (
@@ -129,28 +88,6 @@ export function Dashboard() {
             />
           ))}
         </div>
-      )}
-
-      {sharedTrips.length > 0 && (
-        <>
-          <h2 style={{ margin: '2rem 0 1rem' }}>Shared trips you own</h2>
-          <div className="trip-grid">
-            {sharedTrips.map((trip) => (
-              <div key={trip.id} className={`trip-card motif-${trip.themeMotif || 'mountain'}`} style={{ '--trip-color': trip.themeColor }}>
-                <Link to={`/shared/${trip.id}`} className="trip-card-link">
-                  <div className="trip-card-header">
-                    <h3>{trip.name}</h3>
-                  </div>
-                </Link>
-                <div className="trip-card-actions">
-                  <button className="btn btn-ghost" onClick={() => handleCopyShareLink(trip.id)}>
-                    {copiedTripId === trip.id ? 'Copied!' : '🔗 Copy share link'}
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-        </>
       )}
 
       {showCreate && (

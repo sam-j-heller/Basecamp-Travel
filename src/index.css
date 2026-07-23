@@ -18,21 +18,12 @@
   --sans: 'Segoe UI', system-ui, Roboto, sans-serif;
   --heading: Georgia, 'Iowan Old Style', serif;
 
-  color-scheme: light dark;
+  /* Deliberately light-only: this palette is modeled on a specific reference
+     tool that has no dark mode, so we don't want the system theme to drift
+     it into different colors. */
+  color-scheme: light;
   color: var(--ink);
   background: var(--sand);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --sand: #1d1a15;
-    --sand-deep: #24211a;
-    --ink: #ece5d6;
-    --ink-soft: #b3a893;
-    --card-bg: #262319;
-    --border: #3a3527;
-    --shadow: 0 2px 12px rgba(0, 0, 0, 0.35);
-  }
 }
 
 * {
