@@ -35,7 +35,7 @@ export async function createSharedTrip(ownerUid, { name, startDate, endDate, the
     name,
     startDate: startDate || null,
     endDate: endDate || null,
-    themeColor: themeColor || '#3f6b52',
+    themeColor: themeColor || '#c96f34',
     themeMotif: themeMotif || 'mountain',
     ownerUid,
     lists,

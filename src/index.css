@@ -1,16 +1,18 @@
 /* ---------- Palette & base ---------- */
 :root {
-  --sand: #f6f0e2;
-  --sand-deep: #ece1c8;
-  --ink: #2c261d;
-  --ink-soft: #6b5f4d;
+  --sand: #faf8f4;
+  --sand-deep: #eee9df;
+  --ink: #2b2620;
+  --ink-soft: #6b6259;
   --green: #3f6b52;
   --green-deep: #2c4d3b;
-  --terracotta: #a05c3b;
-  --teal: #2f6f70;
-  --card-bg: #fffdf8;
-  --border: #e2d5b8;
-  --danger: #b0483a;
+  --accent: #c96f34;
+  --accent-dark: #9c5427;
+  --terracotta: #a2472f;
+  --teal: #1f7a6c;
+  --card-bg: #ffffff;
+  --border: #e8e2d8;
+  --danger: #a2472f;
   --shadow: 0 2px 10px rgba(44, 38, 29, 0.08);
 
   --sans: 'Segoe UI', system-ui, Roboto, sans-serif;
@@ -42,7 +44,7 @@ body {
   font-family: var(--sans);
   color: var(--ink);
   background-color: var(--sand);
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Cg fill='none' stroke='%233f6b52' stroke-width='1' opacity='0.06'%3E%3Cpath d='M-10 100 Q 40 60 90 100 T 190 100 T 290 100'/%3E%3Cpath d='M-10 135 Q 40 95 90 135 T 190 135 T 290 135'/%3E%3Cpath d='M-10 65 Q 40 25 90 65 T 190 65 T 290 65'/%3E%3C/g%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Cg fill='none' stroke='%23c96f34' stroke-width='1' opacity='0.06'%3E%3Cpath d='M-10 100 Q 40 60 90 100 T 190 100 T 290 100'/%3E%3Cpath d='M-10 135 Q 40 95 90 135 T 190 135 T 290 135'/%3E%3Cpath d='M-10 65 Q 40 25 90 65 T 190 65 T 290 65'/%3E%3C/g%3E%3C/svg%3E");
   background-size: 420px 420px;
   min-height: 100svh;
 }
@@ -83,11 +85,11 @@ input, button {
   cursor: default;
 }
 .btn-primary {
-  background: var(--green);
+  background: var(--accent);
   color: #fff;
 }
 .btn-primary:hover {
-  background: var(--green-deep);
+  background: var(--accent-dark);
 }
 .btn-secondary {
   background: var(--sand-deep);
@@ -161,7 +163,7 @@ input[type='number'] {
   color: var(--ink);
 }
 input:focus {
-  outline: 2px solid var(--green);
+  outline: 2px solid var(--accent);
   outline-offset: 1px;
 }
 
@@ -211,7 +213,7 @@ input:focus {
 }
 .login-card h1 {
   font-size: 2.1rem;
-  color: var(--green-deep);
+  color: var(--accent-dark);
 }
 .login-subtitle {
   color: var(--ink-soft);
@@ -264,7 +266,7 @@ input:focus {
 }
 .dashboard-header h1 {
   font-size: 2.2rem;
-  color: var(--green-deep);
+  color: var(--accent-dark);
 }
 .dashboard-subtitle {
   color: var(--ink-soft);
@@ -308,7 +310,7 @@ input:focus {
   display: block;
 }
 .trip-card-header {
-  background: var(--trip-color, var(--green));
+  background: var(--trip-color, var(--accent));
   color: #fff;
   padding: 1.1rem 1.1rem 1.4rem;
 }
@@ -349,7 +351,7 @@ input:focus {
   height: 12px;
 }
 .progress-fill {
-  background: var(--trip-color, var(--green));
+  background: var(--trip-color, var(--accent));
   height: 100%;
   border-radius: 999px;
   transition: width 0.25s ease;
@@ -366,7 +368,7 @@ input:focus {
   padding: 0 1.25rem 4rem;
 }
 .trip-page-header {
-  background: var(--trip-color, var(--green));
+  background: var(--trip-color, var(--accent));
   color: #fff;
   margin: 0 -1.25rem 1.75rem;
   padding: 1.5rem 1.25rem 2rem;
@@ -410,7 +412,7 @@ input:focus {
   color: var(--ink-soft);
 }
 .list-tab.active {
-  background: var(--trip-color, var(--green));
+  background: var(--trip-color, var(--accent));
   color: #fff;
   border-color: transparent;
 }
@@ -519,7 +521,7 @@ input:focus {
 .item-row input[type='checkbox'] {
   width: 1.15rem;
   height: 1.15rem;
-  accent-color: var(--green);
+  accent-color: var(--accent);
   flex-shrink: 0;
 }
 .item-name {
@@ -629,9 +631,9 @@ input:focus {
   font-size: 0.85rem;
 }
 .motif-chip.selected {
-  background: var(--green);
+  background: var(--accent);
   color: #fff;
-  border-color: var(--green);
+  border-color: var(--accent);
 }
 .color-swatches {
   display: flex;

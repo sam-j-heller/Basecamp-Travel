@@ -4,7 +4,7 @@ export const MOTIFS = [
   { id: 'desert', label: 'Desert' },
 ]
 
-export const COLOR_SWATCHES = ['#3f6b52', '#a05c3b', '#2f6f70', '#c98a3a', '#5a4a7a', '#4a5d8a']
+export const COLOR_SWATCHES = ['#c96f34', '#1f7a6c', '#a2472f', '#3f6b52', '#5a4a7a', '#4a5d8a']
 
 export function ThemePicker({ motif, color, onMotifChange, onColorChange }) {
   return (

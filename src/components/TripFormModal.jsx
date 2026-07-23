@@ -6,7 +6,7 @@ export function TripFormModal({ title, initial, submitLabel = 'Save', onSubmit, 
   const [startDate, setStartDate] = useState(initial?.startDate || '')
   const [endDate, setEndDate] = useState(initial?.endDate || '')
   const [themeMotif, setThemeMotif] = useState(initial?.themeMotif || 'mountain')
-  const [themeColor, setThemeColor] = useState(initial?.themeColor || '#3f6b52')
+  const [themeColor, setThemeColor] = useState(initial?.themeColor || '#c96f34')
 
   function handleSubmit(e) {
     e.preventDefault()
