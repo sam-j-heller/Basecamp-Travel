@@ -25,6 +25,7 @@ import {
   renameList,
   deleteList,
   tripProgress,
+  fieldProgress,
   addFlatItem,
   updateFlatItem,
   deleteFlatItem,
@@ -98,6 +99,7 @@ export function SharedTripPage() {
   const personalCategory = { id: 'personal', name: 'My additions', items: personalListItems }
 
   const { packed, total } = tripProgress([...hydratedCategories, personalCategory])
+  const { count: ownedCount, total: ownedTotal } = fieldProgress([...hydratedCategories, personalCategory], 'owned')
 
   const syncedList = lists.find((l) => l.synced)
   const showSamBanner =
@@ -188,6 +190,7 @@ export function SharedTripPage() {
         </Link>
         <h1>{trip.name}</h1>
         <ProgressBar packed={packed} total={total} size="lg" />
+        <ProgressBar packed={ownedCount} total={ownedTotal} size="sm" label="owned" />
       </header>
 
       <div className={`trip-page-content${trip.headerImageUrl ? ' has-photo' : ''}`}>

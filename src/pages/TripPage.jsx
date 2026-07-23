@@ -20,6 +20,7 @@ import {
   moveItem,
   makeItem,
   tripProgress,
+  fieldProgress,
   normalizeLists,
   addList,
   renameList,
@@ -53,6 +54,7 @@ export function TripPage() {
   const activeList = lists.find((l) => l.id === activeListId) || lists[0]
   const categories = activeList.categories
   const { packed, total } = tripProgress(categories)
+  const { count: ownedCount, total: ownedTotal } = fieldProgress(categories, 'owned')
 
   const samList = lists.find((l) => l.name === 'Follow along with Sam')
   const showSamBanner =
@@ -142,6 +144,7 @@ export function TripPage() {
         </Link>
         <h1>{trip.name}</h1>
         <ProgressBar packed={packed} total={total} size="lg" />
+        <ProgressBar packed={ownedCount} total={ownedTotal} size="sm" label="owned" />
       </header>
 
       <div className={`trip-page-content${trip.headerImageUrl ? ' has-photo' : ''}`}>

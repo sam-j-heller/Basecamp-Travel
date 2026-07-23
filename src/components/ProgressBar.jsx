@@ -1,4 +1,4 @@
-export function ProgressBar({ packed, total, size = 'md' }) {
+export function ProgressBar({ packed, total, size = 'md', label = 'packed' }) {
   const pct = total > 0 ? Math.round((packed / total) * 100) : 0
   return (
     <div className={`progress progress-${size}`}>
@@ -6,7 +6,7 @@ export function ProgressBar({ packed, total, size = 'md' }) {
         <div className="progress-fill" style={{ width: `${pct}%` }} />
       </div>
       <span className="progress-label">
-        {packed}/{total} packed
+        {packed}/{total} {label}
       </span>
     </div>
   )

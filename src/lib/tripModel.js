@@ -147,6 +147,19 @@ export function categoryProgress(category) {
   return { packed, total }
 }
 
+// Generic per-field progress (field is 'packed' | 'owned' | 'buy'), for
+// the Owned tracking bar alongside the Packed one.
+export function fieldProgress(categories, field) {
+  return categories.reduce(
+    (acc, c) => {
+      const total = c.items.length
+      const count = c.items.filter((i) => i[field]).length
+      return { count: acc.count + count, total: acc.total + total }
+    },
+    { count: 0, total: 0 }
+  )
+}
+
 export function tripProgress(categories) {
   return categories.reduce(
     (acc, c) => {
